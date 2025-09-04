@@ -1,0 +1,29 @@
+# Node.js
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+.pnpm-store/
+coverage/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Editor directories and files
+.vscode/*.log
+.vscode/.ropeproject
+.vscode/*.code-workspace
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.history/
