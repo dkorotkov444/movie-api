@@ -1,0 +1,120 @@
+***   Web server request log   ***
+
+URL: /
+                                  Timestamp: Tue Sep 02 2025 19:32:05 GMT+0200 (Central European Summer Time)
+                                  
+                                  URL: /
+            Timestamp: Wed Sep 03 2025 12:56:09 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /favicon.ico
+            Timestamp: Wed Sep 03 2025 12:56:10 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /
+            Timestamp: Wed Sep 03 2025 12:56:25 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /favicon.ico
+            Timestamp: Wed Sep 03 2025 12:56:25 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /index
+            Timestamp: Wed Sep 03 2025 13:53:21 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /css/style.production.css
+            Timestamp: Wed Sep 03 2025 13:53:21 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /img/favicon-32x32.png
+            Timestamp: Wed Sep 03 2025 13:53:21 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /index
+            Timestamp: Wed Sep 03 2025 19:50:29 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /img/favicon-32x32.png
+            Timestamp: Wed Sep 03 2025 19:50:29 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /gadgets
+            Timestamp: Wed Sep 03 2025 19:50:52 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /img/favicon-32x32.png
+            Timestamp: Wed Sep 03 2025 19:50:52 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /aaa
+            Timestamp: Wed Sep 03 2025 20:14:40 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /img/favicon-32x32.png
+            Timestamp: Wed Sep 03 2025 20:14:40 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /documentation
+            Timestamp: Wed Sep 03 2025 20:32:30 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /favicon.ico
+            Timestamp: Wed Sep 03 2025 20:32:30 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /
+            Timestamp: Thu Sep 04 2025 12:02:20 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /img/favicon-32x32.png
+            Timestamp: Thu Sep 04 2025 12:02:20 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /whatever
+            Timestamp: Thu Sep 04 2025 12:08:03 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /img/favicon-32x32.png
+            Timestamp: Thu Sep 04 2025 12:08:03 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /index
+            Timestamp: Thu Sep 04 2025 12:08:21 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /img/favicon-32x32.png
+            Timestamp: Thu Sep 04 2025 12:08:21 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /111.html
+            Timestamp: Thu Sep 04 2025 12:08:30 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /img/favicon-32x32.png
+            Timestamp: Thu Sep 04 2025 12:08:30 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /documentation.html
+            Timestamp: Thu Sep 04 2025 12:08:55 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /favicon.ico
+            Timestamp: Thu Sep 04 2025 12:08:55 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /documentation.html
+            Timestamp: Thu Sep 04 2025 12:28:57 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /favicon.ico
+            Timestamp: Thu Sep 04 2025 12:28:57 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /index
+            Timestamp: Thu Sep 04 2025 12:32:52 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /indeqqqqq
+            Timestamp: Thu Sep 04 2025 12:32:57 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /img/favicon-32x32.png
+            Timestamp: Thu Sep 04 2025 12:32:57 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /documantation.html
+            Timestamp: Thu Sep 04 2025 12:34:42 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /img/favicon-32x32.png
+            Timestamp: Thu Sep 04 2025 12:34:42 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /documentation.html
+            Timestamp: Thu Sep 04 2025 12:34:51 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /favicon.ico
+            Timestamp: Thu Sep 04 2025 12:34:51 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /machine
+            Timestamp: Thu Sep 04 2025 12:44:51 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /img/favicon-32x32.png
+            Timestamp: Thu Sep 04 2025 12:44:51 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /documentation
+            Timestamp: Thu Sep 04 2025 12:45:15 GMT+0200 (Central European Summer Time)
+                                  
+            URL: /img/favicon-32x32.png
+            Timestamp: Thu Sep 04 2025 12:45:15 GMT+0200 (Central European Summer Time)
+                                  
+            
