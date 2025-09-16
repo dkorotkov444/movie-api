@@ -1,14 +1,58 @@
-[
+  [
   {
-    "title": "Reservoir Dogs",
-    "director": "Quentin Tarantino"
+    "Title": "Reservoir Dogs",
+    "Description": "Reservoir Dogs is a 1992 American crime film written and directed by Quentin Tarantino in his feature-length directorial debut. The film is regarded as a classic of independent film and a cult film.",
+    "Director": {
+      "Name": "Quentin Tarantino",
+      "Bio": "Quentin Jerome Tarantino is an American filmmaker, actor, and author. His films are characterized by graphic violence, extended dialogue often featuring much profanity, and references to popular culture. His work has earned a cult following alongside critical and commercial success; he has been named by some as the most influential director of his generation and has received numerous awards and nominations, including two Academy Awards, two BAFTA Awards, and four Golden Globe Awards. His films have grossed more than $1.9 billion worldwide.",
+      "Born": "27.03.1963"
+    },
+    "Genre": "Action",
+    "Released": 1992,
+    "ImageURL": "https://en.wikipedia.org/wiki/File:Reservoir_Dogs.png",
+    "Feature": "Feature",
+    "Starring":["Harvey Keitel", "Tim Roth", "Chris Penn", "Steve Buscemi", "Lawrence Tierney", "Michael Madsen", "Quentin Tarantino", "Edward Bunker"]
   },
   {
-    "title": "The Godfather Part II",
-    "director": "Francis Ford Coppola"
+    "Title": "The Godfather Part II",
+    "Description": "The Godfather Part II is an American epic crime film produced and directed by Francis Ford Coppola, loosely based on the 1969 novel The Godfather by Mario Puzo, who co-wrote the screenplay with Coppola. It is both a sequel and a prequel to the 1972 film The Godfather, presenting parallel dramas: one picks up the 1958 story of Michael Corleone (Al Pacino), the new Don of the Corleone family, protecting the family business in the aftermath of an attempt on his life; the other covers the journey of his father, Vito Corleone (Robert De Niro), from his Sicilian childhood to the founding of his family enterprise in New York City.",
+    "Director": {
+      "Name": "Francis Ford Coppola",
+      "Bio": "Francis Ford Coppola is an American filmmaker. Considered one of the leading figures of the New Hollywood era as well as one of the pioneers of the gangster film genre, Coppola is widely regarded as one of the greatest and most influential filmmakers in the history of cinema. Coppola is the recipient of five Academy Awards, a BAFTA Award, three Golden Globe Awards, and two Palmes d'Or, in addition to nominations for two Emmy Awards and a Grammy Award. Coppola was honored with the Irving G. Thalberg Memorial Award in 2010, the Kennedy Center Honors in 2024, and the AFI Life Achievement Award in 2025.",
+      "Born": "07.04.1939"
+    },
+    "Genre": "Crime",
+    "Released": 1974,
+    "ImageURL": "https://en.wikipedia.org/wiki/File:Godfather_part_ii.jpg",
+    "Feature": "Feature",
+    "Starring":["Robert De Niro", "Al Pacino", "Robert Duvall", "Diane Keaton", "Talia Shire", "Morgana King", "John Cazale", "Marianna Hill", "Lee Strasberg"]
   },
   {
-    "title": "Zombeavers",
-    "director": "Jordan Rubin"
+    "Title": "Predator",
+    "Description": "Predator is a 1987 American science fiction action horror film directed by John McTiernan and written by brothers Jim and John Thomas. Arnold Schwarzenegger stars as Dutch Schaefer, the leader of an elite paramilitary rescue team on a mission to save hostages in guerrilla-held territory in a Central American rainforest, who encounter the deadly Predator, a skilled, technologically advanced extraterrestrial who stalks and hunts them down.",
+    "Director": {
+      "Name": "John McTiernan",
+      "Bio": "John Campbell McTiernan Jr. is an American filmmaker best known for his action films. His work as director includes Predator (1987), Die Hard (1988), and The Hunt for Red October (1990).",
+      "Born": "08.01.1951"
+    },
+    "Genre": "Sci-Fi",
+    "Released": 1987,
+    "ImageURL": "https://en.wikipedia.org/wiki/File:Predator_Movie.jpg",
+    "Feature": "Feature",
+    "Starring":["Arnold Schwarzenegger", "Carl Weathers", "Bill Duke", "Richard Chaves", "Jesse Ventura", "Sonny Landham", "Shane Black", "Elpidia Carrillo"]
+  },
+  {
+    "Title": "Zombeavers",
+    "Description": "Zombeavers is an American horror comedy film directed by Jordan Rubin, based on a script by Al Kaplan, Jordan Rubin, and Jon Kaplan. The film follows a group of college kids staying at a riverside cottage that are attacked by a swarm of zombie beavers.",
+    "Director": {
+      "Name": "Jordan Rubin",
+      "Bio": "Jordan Rubin is an American film director, born and raised in New York City. While Jordan was still studying at NYU, he began his career in stand-up comedy.",
+      "Born": ""
+    },
+    "Genre": "Horror",
+    "Released": 2014,
+    "ImageURL": "https://en.wikipedia.org/wiki/File:Zombeavers_film_poster.jpg",
+    "Feature": "Feature",
+    "Starring":["Rachel Melvin", "Cortney Palm", "Lexi Atkins", "Hutch Dano", "Jake Weary", "Peter Gilroy", "Rex Linn"]
   }
 ]
