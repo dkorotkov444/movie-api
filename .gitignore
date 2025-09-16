@@ -27,3 +27,6 @@ pids
 .vscode/launch.json
 .vscode/tasks.json
 .history/
+
+# Application log
+files/log.txt
