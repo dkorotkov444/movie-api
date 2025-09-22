@@ -4,13 +4,21 @@
 */
 
 // Import required frameworks and modules
-import express from 'express';
-import morgan from 'morgan';
-import fs from 'fs';
-import path from 'path';
-import {v4 as uuidv4} from 'uuid';
-import { fileURLToPath } from 'url'; // Import fileURLToPath from the url module
+import express from 'express';  // Import Express framework
+import morgan from 'morgan';    // Import Morgan logging library
+import fs from 'fs';            // Import filesystem module
+import path from 'path';        // Import path module
+import {v4 as uuidv4} from 'uuid';          // Import uuid to generate unique IDs
+import { fileURLToPath } from 'url';        // Import fileURLToPath from the url module
+import mongoose from 'mongoose';            // Import Mongoose ODM
+import { User, Movie } from './models.js';  // Import User and Movie models
 
+// Connect to MongoDB database
+mongoose.connect('mongodb://localhost:27017/reelDB', { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to MongoDB database'))
+  .catch(err => console.error('Could not connect to MongoDB database:', err));  
+
+// Create an Express application
 const app = express();
 const myPort = 8080;        // Define at which local port runs the web server
 
@@ -120,6 +128,7 @@ let users = [
 app.use(morgan('common', {stream: accessLogStream}));  // Use Morgan logging in standard format (before express.static to log files return)
 app.use(express.static('public'));  // Serve all static files from directory public/ automatically
 app.use(express.json());  // Parse JSON
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies (as sent by HTML forms)
 
 // Receive user input   --- TESTED
 app.get('/', (req,res) => {
