@@ -199,7 +199,7 @@
     "starring": [],
     "director": {
       "name": "Martin Scorsese",
-      "bio": "Martin Scorsese is widely considered one of the most important directors of all time. Known for his gritty, meticulous filmmaking style, his films often explore themes of crime, guilt, and redemption, deeply rooted in his Italian-American heritage and experience of growing up in New York City.",
+      "bio": "Martin Scorsese is widely considered one of the most important directors of all time. Known for his gritty, meticulous filmmaking style, his films often explore themes of crime, guilt, and redemption, deeply rooted in his Italian-American heritage and experience of growing up in New York City. One of the major figures of the New Hollywood era, he has received many accolades, including an Academy Award, four BAFTA Awards, three Emmy Awards, a Grammy Award, and three Golden Globe Awards.",
       "birth_date": new Date("1942-11-17"),
       "death_date": null
     },
