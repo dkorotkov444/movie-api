@@ -25,91 +25,221 @@
     <main class="container my-5 text-white">
         <h1 class="text-center mb-4 text-white">Movie API Developers' Documentation</h1>
         <p class="text-center text-white-50">This web application will provide users with access to information about different movies, directors, and genres. Users will be able to sign up, update their personal information, and create a list of their favorite movies.</p>
+        <p class="text-center text-white-50"><strong>Version:</strong> 1.1.0 | <strong>Last Updated:</strong> September 23, 2025</p>
         
         <div class="row">
-            <div class="col-lg-6 mx-auto">
-                <h2 class="mt-5 mb-3 text-white">Feature Requirements</h2>
+            <div class="col-lg-10 mx-auto">
+                <h2 class="mt-5 mb-3 text-white">API Endpoints</h2>
                 <div class="card p-4 mb-3 custom-card">
                     <h3 class="card-title text-white">Essential Features</h3>
                     <ul class="list-unstyled">
                         <li class="mb-4">
-                            <h4 class="text-white">Return a list of ALL movies to the user</h4>
+                            <h4 class="text-white">Return a list of ALL movies (titles only)</h4>
                             <p><strong>Description:</strong> Returns a list of all movies available in the database.</p>
                             <p><strong>Method Type:</strong> <span class="badge bg-success">GET</span></p>
                             <p><strong>Endpoint URL:</strong> <code>/movies</code></p>
-                            <p><strong>Data returned:</strong> An array of movie objects.</p>
+                            <p><strong>Data returned:</strong> An array of movie titles (strings).</p>
+                            <pre><code class="text-white">
+[
+  "Reservoir Dogs",
+  "The Godfather Part II",
+  "Predator",
+  "Zombeavers",
+  "Pulp Fiction",
+  "Goodfellas",
+  "The Departed"
+]
+                            </code></pre>
                         </li>
                         <li class="mb-4">
-                            <h4 class="text-white">Return a list of ALL users to the user</h4>
-                            <p><strong>Description:</strong> Returns a list of all users in the database.</p>
+                            <h4 class="text-white">Return complete information about all movies</h4>
+                            <p><strong>Description:</strong> Returns a list of all movie objects in the database with their full details.</p>
                             <p><strong>Method Type:</strong> <span class="badge bg-success">GET</span></p>
-                            <p><strong>Endpoint URL:</strong> <code>/users</code></p>
-                            <p><strong>Data returned:</strong> An array of user objects.</p>
+                            <p><strong>Endpoint URL:</strong> <code>/movies/complete</code></p>
+                            <p><strong>Data returned:</strong> An array of movie objects.</p>
+                            <pre><code class="text-white">
+[
+  {
+    "_id": "68cd8259d8540b738fcebea9",
+    "title": "Reservoir Dogs",
+    "description": "...",
+    "release_year": 1992,
+    "image_url": "...",
+    "rating_imdb": 8.3,
+    "featured": true,
+    "starring": ["Harvey Keitel", "Tim Roth"],
+    "director": { "name": "Quentin Tarantino", "bio": "...", "birth_date": "1963-03-27T00:00:00.000Z" },
+    "genre": { "name": "Crime", "description": "..." }
+  },
+  ...
+]
+                            </code></pre>
                         </li>
                         <li class="mb-4">
                             <h4 class="text-white">Return data about a single movie by title to the user</h4>
                             <p><strong>Description:</strong> Returns a single movie object by its title.</p>
                             <p><strong>Method Type:</strong> <span class="badge bg-success">GET</span></p>
                             <p><strong>Endpoint URL:</strong> <code>/movies/{title}</code></p>
-                            <p><strong>Query Parameters:</strong> <code>title</code>: The title of the movie to retrieve.</p>
+                            <p><strong>Path Parameters:</strong> <code>title</code>: The title of the movie to retrieve.</p>
                             <p><strong>Data returned:</strong> A movie object.</p>
+                            <pre><code class="text-white">
+{
+  "_id": "68cd8259d8540b738fcebea9",
+  "title": "Reservoir Dogs",
+  "description": "...",
+  "release_year": 1992,
+  "image_url": "...",
+  "rating_imdb": 8.3,
+  "featured": true,
+  "starring": ["Harvey Keitel", "Tim Roth"],
+  "director": { "name": "Quentin Tarantino", "bio": "...", "birth_date": "1963-03-27T00:00:00.000Z" },
+  "genre": { "name": "Crime", "description": "..." }
+}
+                            </code></pre>
                         </li>
                         <li class="mb-4">
                             <h4 class="text-white">Return data about a genre by name</h4>
-                            <p><strong>Description:</strong> Returns a genre object with its name and description.</p>
+                            <p><strong>Description:</strong> Returns a genre object with its name and description based on the provided genre name.</p>
                             <p><strong>Method Type:</strong> <span class="badge bg-success">GET</span></p>
                             <p><strong>Endpoint URL:</strong> <code>/movies/genres/{genreName}</code></p>
-                            <p><strong>Query Parameters:</strong> <code>genreName</code>: The name of the genre (e.g., 'Sci-Fi', 'Crime').</p>
+                            <p><strong>Path Parameters:</strong> <code>genreName</code>: The name of the genre (e.g., 'Sci-Fi', 'Crime').</p>
                             <p><strong>Data returned:</strong> A genre object.</p>
+                            <pre><code class="text-white">
+{
+  "name": "Crime",
+  "description": "Crime film is a film belonging to the crime fiction genre. Films of this genre generally involve various aspects of crime."
+}
+                            </code></pre>
                         </li>
                         <li class="mb-4">
                             <h4 class="text-white">Return data about a director by name</h4>
-                            <p><strong>Description:</strong> Returns a director object with their bio and birth year.</p>
+                            <p><strong>Description:</strong> Returns a director object with their name, bio, and birth date based on the provided director name.</p>
                             <p><strong>Method Type:</strong> <span class="badge bg-success">GET</span></p>
                             <p><strong>Endpoint URL:</strong> <code>/movies/directors/{directorName}</code></p>
-                            <p><strong>Query Parameters:</strong> <code>directorName</code>: The name of the director (e.g., 'Quentin Tarantino').</p>
+                            <p><strong>Path Parameters:</strong> <code>directorName</code>: The name of the director (e.g., 'Quentin Tarantino').</p>
                             <p><strong>Data returned:</strong> A director object.</p>
+                            <pre><code class="text-white">
+{
+  "name": "Quentin Tarantino",
+  "bio": "Quentin Jerome Tarantino is an American filmmaker, actor, and author...",
+  "birth_date": "1963-03-27T00:00:00.000Z"
+}
+                            </code></pre>
+                        </li>
+                        <li class="mb-4">
+                            <h4 class="text-white">Return a list of all users</h4>
+                            <p><strong>Description:</strong> Returns a list of all user objects in the database.</p>
+                            <p><strong>Method Type:</strong> <span class="badge bg-success">GET</span></p>
+                            <p><strong>Endpoint URL:</strong> <code>/users</code></p>
+                            <p><strong>Data returned:</strong> An array of user objects.</p>
+                            <pre><code class="text-white">
+[
+  {
+    "_id": "68cd7e3ed8540b738fcebea4",
+    "username": "LesterBangs",
+    "email": "lester.bangs@example.com",
+    "birth_date": "1948-12-14T00:00:00.000Z",
+    "favorites": ["68cd8259d8540b738fcebead", "68cd8259d8540b738fcebeac"]
+  },
+  ...
+]
+                            </code></pre>
                         </li>
                         <li class="mb-4">
                             <h4 class="text-white">Allow new users to register</h4>
-                            <p><strong>Description:</strong> Registers a new user account with a provided username.</p>
+                            <p><strong>Description:</strong> Registers a new user account with a provided username, password, email, and birth date.</p>
                             <p><strong>Method Type:</strong> <span class="badge bg-primary">POST</span></p>
                             <p><strong>Endpoint URL:</strong> <code>/users</code></p>
-                            <p><strong>Data returned:</strong> A string indicating successful registration.</p>
-                            <p><strong>Request Body:</strong> Expected fields: <code>{ "Username": "string" }</code></p>
+                            <p><strong>Request Body:</strong> A JSON object with the user's details.</p>
+                            <pre><code class="text-white">
+{
+  "username": "JaneDoe",
+  "password": "password123",
+  "email": "jane.doe@example.com",
+  "birth_date": "1990-01-01"
+}
+                            </code></pre>
+                            <p><strong>Data returned:</strong> The newly created user object.</p>
+                            <pre><code class="text-white">
+{
+  "username": "JaneDoe",
+  "password": "password123",
+  "email": "jane.doe@example.com",
+  "birth_date": "1990-01-01",
+  "_id": "68cd7e3ed8540b738fcebea9"
+}
+                            </code></pre>
                         </li>
                         <li class="mb-4">
                             <h4 class="text-white">Allow users to update their user info</h4>
-                            <p><strong>Description:</strong> Updates the username of an existing user.</p>
+                            <p><strong>Description:</strong> Updates an existing user's information (username, password, email, or birth date).</p>
                             <p><strong>Method Type:</strong> <span class="badge bg-warning text-dark">PATCH</span></p>
                             <p><strong>Endpoint URL:</strong> <code>/users/{username}</code></p>
-                            <p><strong>Query Parameters:</strong> <code>username</code>: The current username to update.</p>
-                            <p><strong>Data returned:</strong> A string confirming the update.</p>
-                            <p><strong>Request Body:</strong> Expected fields: <code>{ "newUsername": "string" }</code></p>
+                            <p><strong>Path Parameters:</strong> <code>username</code>: The current username of the user to update.</p>
+                            <p><strong>Request Body:</strong> A JSON object containing the fields to update.</p>
+                            <pre><code class="text-white">
+{
+  "newUsername": "JaneDoeNew",
+  "newEmail": "jane.new@example.com"
+}
+                            </code></pre>
+                            <p><strong>Data returned:</strong> The updated user object.</p>
+                            <pre><code class="text-white">
+{
+  "username": "JaneDoeNew",
+  "password": "password123",
+  "email": "jane.new@example.com",
+  "birth_date": "1990-01-01",
+  "_id": "68cd7e3ed8540b738fcebea9"
+}
+                            </code></pre>
                         </li>
                         <li class="mb-4">
                             <h4 class="text-white">Allow users to add a movie to their list of favorites</h4>
-                            <p><strong>Description:</strong> Adds a movie to a user's list of favorite movies.</p>
-                            <p><strong>Method Type:</strong> <span class="badge bg-primary">POST</span></p>
+                            <p><strong>Description:</strong> Adds a movie to a user's list of favorite movies by title. The movie is added using its `_id` to the `favorites` array.</p>
+                            <p><strong>Method Type:</strong> <span class="badge bg-warning text-dark">PATCH</span></p>
                             <p><strong>Endpoint URL:</strong> <code>/users/{username}/{movieTitle}</code></p>
-                            <p><strong>Query Parameters:</strong> <code>username</code>: The username of the account. <code>movieTitle</code>: The title of the movie.</p>
-                            <p><strong>Data returned:</strong> A string confirming the action.</p>
+                            <p><strong>Path Parameters:</strong> <code>username</code>: The username of the account. <code>movieTitle</code>: The title of the movie.</p>
+                            <p><strong>Data returned:</strong> The updated user object, including the new favorite movie's `_id` in the `favorites` array.</p>
+                            <pre><code class="text-white">
+{
+  "_id": "68cd7e3ed8540b738fcebea4",
+  "username": "LesterBangs",
+  "password": "R@w_P0wer!",
+  "email": "lester.bangs@example.com",
+  "birth_date": "1948-12-14T00:00:00.000Z",
+  "favorites": ["68cd8259d8540b738fcebead", "68cd8259d8540b738fcebeac", "68cd8259d8540b738fcebeaf"]
+}
+                            </code></pre>
                         </li>
                         <li class="mb-4">
                             <h4 class="text-white">Allow users to remove a movie from their list of favorites</h4>
-                            <p><strong>Description:</strong> Removes a movie from a user's list of favorite movies.</p>
+                            <p><strong>Description:</strong> Removes a movie from a user's list of favorite movies by title.</p>
                             <p><strong>Method Type:</strong> <span class="badge bg-danger">DELETE</span></p>
                             <p><strong>Endpoint URL:</strong> <code>/users/{username}/{movieTitle}</code></p>
-                            <p><strong>Query Parameters:</strong> <code>username</code>: The username of the account. <code>movieTitle</code>: The title of the movie.</p>
-                            <p><strong>Data returned:</strong> A string confirming the action.</p>
+                            <p><strong>Path Parameters:</strong> <code>username</code>: The username of the account. <code>movieTitle</code>: The title of the movie to remove.</p>
+                            <p><strong>Data returned:</strong> The updated user object with the movie removed from the `favorites` array.</p>
+                            <pre><code class="text-white">
+{
+  "_id": "68cd7e3ed8540b738fcebea4",
+  "username": "LesterBangs",
+  "password": "R@w_P0wer!",
+  "email": "lester.bangs@example.com",
+  "birth_date": "1948-12-14T00:00:00.000Z",
+  "favorites": ["68cd8259d8540b738fcebead", "68cd8259d8540b738fcebeac"]
+}
+                            </code></pre>
                         </li>
                         <li class="mb-4">
                             <h4 class="text-white">Allow existing users to deregister</h4>
                             <p><strong>Description:</strong> Deregisters (deletes) a user from the database.</p>
                             <p><strong>Method Type:</strong> <span class="badge bg-danger">DELETE</span></p>
                             <p><strong>Endpoint URL:</strong> <code>/users/{username}</code></p>
-                            <p><strong>Query Parameters:</strong> <code>username</code>: The username to deregister.</p>
+                            <p><strong>Path Parameters:</strong> <code>username</code>: The username to deregister.</p>
                             <p><strong>Data returned:</strong> A string confirming the deletion.</p>
+                            <pre><code class="text-white">
+"User JaneDoeNew was deregistered"
+                            </code></pre>
                         </li>
                     </ul>
                 </div>
@@ -122,38 +252,28 @@
                             <p><strong>Description:</strong> Returns a list of all actors starring in a specific movie.</p>
                             <p><strong>Method Type:</strong> <span class="badge bg-success">GET</span></p>
                             <p><strong>Endpoint URL:</strong> <code>/movies/{title}/starring</code></p>
-                            <p><strong>Query Parameters:</strong> <code>title</code>: The title of the movie.</p>
-                            <p><strong>Data returned:</strong> An object containing the array of actors.</p>
+                            <p><strong>Path Parameters:</strong> <code>title</code>: The title of the movie.</p>
+                            <p><strong>Data returned:</strong> An array of actors (strings).</p>
+                            <pre><code class="text-white">
+["Harvey Keitel", "Tim Roth", "Chris Penn", "Steve Buscemi", "Lawrence Tierney", "Michael Madsen", "Quentin Tarantino", "Edward Bunker"]
+                            </code></pre>
                         </li>
                         <li class="mb-4">
                             <h4 class="text-white">Allow users to view information about different actors</h4>
-                            <p><strong>Description:</strong> Returns information about a specific actor. (Endpoint exists, but logic is not yet implemented.)</p>
+                            <p><strong>Description:</strong> Returns information about a specific actor.</p>
                             <p><strong>Method Type:</strong> <span class="badge bg-success">GET</span></p>
                             <p><strong>Endpoint URL:</strong> <code>/movies/actors/{actorName}</code></p>
-                            <p><strong>Query Parameters:</strong> <code>actorName</code>: The name of the actor.</p>
-                            <p><strong>Data returned:</strong> A success message.</p>
-                        </li>
-                        <li class="mb-4">
-                            <h4 class="text-white">Allow users to view more information about different movies</h4>
-                            <p><strong>Description:</strong> Returns more detailed information about a specific movie, such as rating and release date. (Endpoint exists, but logic is not yet implemented.)</p>
-                            <p><strong>Method Type:</strong> <span class="badge bg-success">GET</span></p>
-                            <p><strong>Endpoint URL:</strong> <code>/movies/{title}/full-info</code></p>
-                            <p><strong>Query Parameters:</strong> <code>title</code>: The title of the movie.</p>
-                            <p><strong>Data returned:</strong> A success message.</p>
-                        </li>
-                        <li class="mb-4">
-                            <h4 class="text-white">Allow users to create a “To Watch” list in addition to their “Favorite Movies” list</h4>
-                            <p><strong>Description:</strong> Adds a movie to a user's 'to-watch' list. (Endpoint exists, but logic is not yet implemented.)</p>
-                            <p><strong>Method Type:</strong> <span class="badge bg-primary">POST</span></p>
-                            <p><strong>Endpoint URL:</strong> <code>/users/{username}/{to-watch}</code></p>
-                            <p><strong>Query Parameters:</strong> <code>username</code>: The username of the account. <code>to-watch</code>: The title of the movie to add to the watch list.</p>
-                            <p><strong>Data returned:</strong> A success message.</p>
+                            <p><strong>Path Parameters:</strong> <code>actorName</code>: The name of the actor.</p>
+                            <p><strong>Data returned:</strong> A success message (logic not yet implemented).</p>
+                            <pre><code class="text-white">
+"Sucessful GET request returning info about actor"
+                            </code></pre>
                         </li>
                     </ul>
                 </div>
             </div>
             
-            <div class="col-lg-6 mx-auto">
+            <div class="col-lg-10 mx-auto">
                 <h2 class="mt-5 mb-3 text-white">Technical Requirements</h2>
                 <div class="card p-4 custom-card">
                     <ul class="text-white">

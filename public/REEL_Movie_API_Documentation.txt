@@ -2,6 +2,8 @@
 
 This documentation describes the RESTful endpoints for the REEL Movie API, following the OpenAPI Specification format.
 
+**Version:** 1.1.0 | **Last Updated:** September 23, 2025
+
 ***
 
 ### **`/`**
@@ -15,9 +17,18 @@ This documentation describes the RESTful endpoints for the REEL Movie API, follo
 
 ### **`/movies`**
 
-* **Description:** Returns a list of all movies available in the database.
+* **Description:** Returns a list of all movies available in the database (titles only).
 * **Method Type:** GET
 * **Endpoint URL:** `http://localhost:8080/movies`
+* **Data returned:** An array of movie titles (strings).
+
+***
+
+### **`/movies/complete`**
+
+* **Description:** Returns a list of all movie objects in the database with their full details.
+* **Method Type:** GET
+* **Endpoint URL:** `http://localhost:8080/movies/complete`
 * **Data returned:** An array of movie objects.
 
 ***
@@ -27,7 +38,7 @@ This documentation describes the RESTful endpoints for the REEL Movie API, follo
 * **Description:** Returns a single movie object by its title.
 * **Method Type:** GET
 * **Endpoint URL:** `http://localhost:8080/movies/{title}`
-* **Query Parameters:**
+* **Path Parameters:**
     * `title`: The title of the movie to retrieve.
 * **Data returned:** A movie object.
 
@@ -38,7 +49,7 @@ This documentation describes the RESTful endpoints for the REEL Movie API, follo
 * **Description:** Returns a genre object with its name and description.
 * **Method Type:** GET
 * **Endpoint URL:** `http://localhost:8080/movies/genres/{genreName}`
-* **Query Parameters:**
+* **Path Parameters:**
     * `genreName`: The name of the genre (e.g., 'Sci-Fi', 'Crime').
 * **Data returned:** A genre object.
 
@@ -46,10 +57,10 @@ This documentation describes the RESTful endpoints for the REEL Movie API, follo
 
 ### **`/movies/directors/{directorName}`**
 
-* **Description:** Returns a director object with their bio and birth year.
+* **Description:** Returns a director object with their bio and birth date.
 * **Method Type:** GET
 * **Endpoint URL:** `http://localhost:8080/movies/directors/{directorName}`
-* **Query Parameters:**
+* **Path Parameters:**
     * `directorName`: The name of the director (e.g., 'Quentin Tarantino').
 * **Data returned:** A director object.
 
@@ -59,45 +70,47 @@ This documentation describes the RESTful endpoints for the REEL Movie API, follo
 
 * **Description:**
     * **GET:** Returns a list of all users in the database.
-    * **POST:** Registers a new user account with a provided username.
+    * **POST:** Registers a new user account with a provided username, password, email, and birth date.
 * **Method Type:** GET, POST
 * **Endpoint URL:** `http://localhost:8080/users`
 * **Data returned:**
     * **GET:** An array of user objects.
-    * **POST:** A string indicating successful registration.
+    * **POST:** The newly created user object.
 * **Request Body (for POST):**
     * **Data Format:** JSON
-    * **Expected fields:** `{ "Username": "string" }`
+    * **Expected fields:** `{ "username": "string", "password": "string", "email": "string", "birth_date": "YYYY-MM-DD" }`
 
 ***
 
 ### **`/users/{username}`**
 
 * **Description:**
-    * **PATCH:** Updates the username of an existing user.
+    * **PATCH:** Updates an existing user's information (username, password, email, or birth date).
     * **DELETE:** Deregisters (deletes) a user from the database.
 * **Method Type:** PATCH, DELETE
 * **Endpoint URL:** `http://localhost:8080/users/{username}`
-* **Query Parameters:**
-    * `username`: The username of the user.
-* **Data returned:** A string confirming the action (update or deletion).
+* **Path Parameters:**
+    * `username`: The current username of the user.
+* **Data returned:**
+    * **PATCH:** The updated user object.
+    * **DELETE:** A string confirming the deletion.
 * **Request Body (for PATCH):**
     * **Data Format:** JSON
-    * **Expected fields:** `{ "newUsername": "string" }`
+    * **Expected fields:** `{ "newUsername": "string", "newPassword": "string", "newEmail": "string", "newBirthDate": "YYYY-MM-DD" }`
 
 ***
 
 ### **`/users/{username}/{movieTitle}`**
 
 * **Description:**
-    * **POST:** Adds a movie to a user's list of favorite movies.
+    * **PATCH:** Adds a movie to a user's list of favorite movies.
     * **DELETE:** Removes a movie from a user's list of favorite movies.
-* **Method Type:** POST, DELETE
+* **Method Type:** PATCH, DELETE
 * **Endpoint URL:** `http://localhost:8080/users/{username}/{movieTitle}`
-* **Query Parameters:**
+* **Path Parameters:**
     * `username`: The username of the account.
     * `movieTitle`: The title of the movie.
-* **Data returned:** A string confirming the action (add or remove).
+* **Data returned:** The updated user object with the modified favorites array.
 
 ***
 
@@ -106,40 +119,17 @@ This documentation describes the RESTful endpoints for the REEL Movie API, follo
 * **Description:** Returns a list of all actors starring in a specific movie.
 * **Method Type:** GET
 * **Endpoint URL:** `http://localhost:8080/movies/{title}/starring`
-* **Query Parameters:**
+* **Path Parameters:**
     * `title`: The title of the movie.
-* **Data returned:** An object containing an array of actors.
+* **Data returned:** An array of actors (strings).
 
 ***
 
 ### **`/movies/actors/{actorName}`**
 
-* **Description:** Returns information about a specific actor. (Endpoint exists, but logic is not yet implemented.)
+* **Description:** Returns information about a specific actor.
 * **Method Type:** GET
 * **Endpoint URL:** `http://localhost:8080/movies/actors/{actorName}`
-* **Query Parameters:**
+* **Path Parameters:**
     * `actorName`: The name of the actor.
-* **Data returned:** A success message.
-
-***
-
-### **`/movies/{title}/full-info`**
-
-* **Description:** Returns more detailed information about a specific movie, such as rating and release date. (Endpoint exists, but logic is not yet implemented.)
-* **Method Type:** GET
-* **Endpoint URL:** `http://localhost:8080/movies/{title}/full-info`
-* **Query Parameters:**
-    * `title`: The title of the movie.
-* **Data returned:** A success message.
-
-***
-
-### **`/users/{username}/{to-watch}`**
-
-* **Description:** Adds a movie to a user's 'to-watch' list. (Endpoint exists, but logic is not yet implemented.)
-* **Method Type:** POST
-* **Endpoint URL:** `http://localhost:8080/users/{username}/{to-watch}`
-* **Query Parameters:**
-    * `username`: The username of the account.
-    * `to-watch`: The title of the movie to add to the watch list.
 * **Data returned:** A success message.
