@@ -9,7 +9,6 @@ const { Schema, model } = mongoose;
 
 // Define the user schema
 const userSchema = new Schema({
-    userid: {type: Number},
     username: { type: String, required: true },
     password: { type: String, required: true },
     email: { type: String, required: true },
@@ -19,7 +18,6 @@ const userSchema = new Schema({
 
 // Define the movie schema
 const movieSchema = new Schema({
-    movieid: { type: Number },
     title: { type: String, required: true },
     description: { type: String, required: true },
     release_year: { type: Number, required: true },
@@ -39,10 +37,8 @@ const movieSchema = new Schema({
     }
 });
 
-// Create the user model
+// Create the user model and the movie model
 const User = model('User', userSchema);
-
-// Create the movie model
 const Movie = model('Movie', movieSchema);
 
 // Export the models
