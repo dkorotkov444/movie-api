@@ -1,0 +1,6 @@
+{"_id":{"$oid":"68cd7e3ed8540b738fcebea4"},"userid":1,"username":"LesterBangs","password":"R@w_P0wer!","email":"lester.bangs@example.com","birth_date":{"$date":{"$numberLong":"-664243200000"}},"favorites":[1,4,18]}
+{"_id":{"$oid":"68cd7ef9d8540b738fcebea5"},"userid":2,"username":"PattiSmith","password":"Horses*1975","email":"patti@gloria.com","birth_date":{"$date":{"$numberLong":"-726019200000"}},"favorites":[2,3,17]}
+{"_id":{"$oid":"68cd7ef9d8540b738fcebea6"},"userid":3,"username":"IggyPop","password":"TheStooges_1","email":"iggy.pop@example.com","birth_date":{"$date":{"$numberLong":"-716342400000"}},"favorites":[{"$oid":"68cd8259d8540b738fcebeaf"}]}
+{"_id":{"$oid":"68cd7ef9d8540b738fcebea7"},"userid":4,"username":"JohnWaters","password":"H@irsp@ray","email":"john.waters@example.com","birth_date":{"$date":{"$numberLong":"-747792000000"}},"favorites":[22,4]}
+{"_id":{"$oid":"68cd7ef9d8540b738fcebea9"},"userid":6,"username":"JohnnyRamone","password":"Hey_H0_LetsGo","email":"johnny.ramone@example.com","birth_date":{"$date":{"$numberLong":"-587692800000"}},"favorites":[19,1,25,21]}
+{"_id":{"$oid":"68d28b786700e16b902309ba"},"username":"SidVicious","password":"Anarchy_UK","email":"sid.vicious@sexpistols.com","birth_date":{"$date":{"$numberLong":"-399081600000"}},"favorites":[{"$oid":"68cd8259d8540b738fcebeac"},{"$oid":"68cd8259d8540b738fcebeb7"}],"__v":0}
