@@ -9,9 +9,9 @@ const { Schema, model } = mongoose;
 
 // Define the user schema
 const userSchema = new Schema({
-    username: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
     birth_date: { type: Date},
     favorites: [{ type: Schema.Types.ObjectId, ref: 'Movie' }]
 });
