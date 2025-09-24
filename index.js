@@ -120,28 +120,28 @@ app.use(morgan('common', {stream: accessLogStream}));  // Use Morgan logging in 
 app.use(express.json());  // Parse JSON
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies (as sent by HTML forms)
 
-// Receive user input   --- TESTED
+// Receive user input
 app.get('/', (req,res) => {
   res.send(`User detected in the root at the port ${myPort}`);
 });
 
 // ESSENTIAL FEATURES
 
-// Returns the list of all movies (titles only)  --- TESTED
+// Returns the list of all movies (titles only)
 app.get('/movies', async(req,res) => {
   await Movie.find()
     .then(movies => res.status(200).json(movies.map(movie => movie.title)))
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Returns complete information about all movies.  --- TESTED
+// Returns complete information about all movies
 app.get('/movies/complete', async(req,res) => {
   await Movie.find()
     .then(movies => res.status(200).json(movies))
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Returns data (description, genre, director, image URL, etc.) about a single movie by title  --- TESTED
+// Returns data (description, genre, director, image URL, etc.) about a single movie by title
 app.get('/movies/:title', async(req,res) => {
   const { title } = req.params;
   await Movie.findOne({ title: title })
@@ -155,7 +155,7 @@ app.get('/movies/:title', async(req,res) => {
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Returns data about a genre (description) by name (e.g., “Thriller”)  --- TESTED
+// Returns data about a genre (description) by name (e.g., “Thriller”) 
 app.get('/movies/genres/:genreName', async (req,res) => {
   const { genreName } = req.params;
   await Movie.findOne({ 'genre.name': genreName })
@@ -169,7 +169,7 @@ app.get('/movies/genres/:genreName', async (req,res) => {
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Returns data about a director (name, bio, birth year, death year) by name  --- TESTED
+// Returns data about a director (name, bio, birth year, death year) by name
 app.get('/movies/directors/:directorName', async (req,res) => {
   const { directorName } = req.params;
   await Movie.findOne({ 'director.name': directorName })
@@ -183,32 +183,36 @@ app.get('/movies/directors/:directorName', async (req,res) => {
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Returns a list of all users  --- TESTED
+// Returns a list of all users
 app.get('/users', async (req,res) => {
   await User.find()
     .then(users => res.status(200).json(users))
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Registers new user with provided username  --- TESTED
+// Registers new user
 app.post('/users', async (req,res) => {
-  let newUser = req.body;
-  if (!newUser || !newUser.username) {
+  const newUser = req.body; // Expecting JSON in request body
+  const { username, email, birth_date } = newUser;
+  const { password, ...publicProfile } = newUser; // Exclude password from the response
+  
+  // Check if username is provided
+  if (!newUser || !username) {
     return res.status(400).send('Missing username in request body');
   }
-  await User.findOne({ username: newUser.username })
+  await User.findOne({ username: username })
     .then(user => {
       if (user) {
         res.status(409).send('Username already exists');
       } else {
         // Create and save the new user
         User.create({
-          username: newUser.username,
-          password: newUser.password,
-          email: newUser.email,
-          birth_date: newUser.birth_date,
+          username: username,
+          password: password,
+          email: email,
+          birth_date: birth_date,
         });
-        res.status(201).json(newUser);
+        res.status(201).json(publicProfile);  // Return the public profile without password
       }
     })
     .catch(err => res.status(500).send('Error: ' + err));
@@ -242,7 +246,9 @@ app.patch('/users/:username', async (req, res) => {
       return res.status(404).send(`User ${username} not found`);
     }
 
-    res.status(200).json(updatedUser);
+    // Strip Mongoose properties and exclude password from the response
+    const { password, ...publicProfile } = updatedUser.toObject();
+    res.status(200).json(publicProfile);
 
   } catch (err) {
     console.error(err);
