@@ -13,16 +13,21 @@ import mongoose from 'mongoose';            // Import Mongoose ODM
 import { User, Movie } from './models.js';  // Import User and Movie models
 import passport from 'passport';            // Import passport authentication module
 import './passport.js';                     // Import passport strategies (runs passport.js) 
-import Router from './auth.js';             // Imports Router function from auth.js
+import authRouter from './auth.js';             // Imports Router function from auth.js
+import dotenv from 'dotenv';                // Import dotenv to manage environment variables
+
+// Load environment variables from .env file
+dotenv.config();                             // Load environment variables from .env file
+const { DB_URI, SERVER_PORT } = process.env; // Destructure environment variables
 
 // Connect to MongoDB database
-mongoose.connect('mongodb://localhost:27017/reelDB')
+mongoose.connect(DB_URI)
   .then(() => console.log('Connected to MongoDB database reelDB'))
   .catch(err => console.error('Could not connect to MongoDB database:', err));  
 
 // Create an Express application
 const app = express();
-const myPort = 8080;        // Define at which local port runs the web server
+const myPort = SERVER_PORT || 8080;        // Define at which local port runs the web server
 
 // Get the directory name for the current module in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -122,7 +127,7 @@ let movies = [
 app.use(morgan('common', {stream: accessLogStream}));  // Use Morgan logging in standard format (before express.static to log files return)
 app.use(express.json());  // Parse JSON
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies (as sent by HTML forms)
-app.use ('/', Router);  // Use the auth.js file for all requests to root URL (login)
+app.use ('/', authRouter);  // Use the auth.js file for all requests to root URL (login)
 
 // API ENDPOINTS
 
@@ -349,17 +354,9 @@ app.get('/movies/:title/starring', passport.authenticate('jwt', { session: false
 });
 
 // Returns information about actor  --- ENDPOINT TESTED, NO LOGIC YET
-app.get('/movies/actors/:actorName', (req,res) => {
-  res.send('Sucessful GET request returning info about actor');    
-});
-
-// Returns all information about the movie by title - THIS ONE DUPLICATES ONE OF THE ESSENTIAL FEATURES
-// app.get('/movies/:title/full-info', async(req,res) => {...});
-
-// Adds a movie to watch list
-// app.post('/users/:username/:to-watch', (req,res) => {
-//   res.send('Sucessful POST request adding movie to watch list');
-// });
+//app.get('/movies/actors/:actorName', (req,res) => {
+//  res.send('Sucessful GET request returning info about actor');    
+//});
 
 // Catch and process any remaining errors
 app.use((error, req, res, next) => {

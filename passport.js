@@ -4,15 +4,15 @@
 */
 
 // Import required frameworks and modules
-import passport from 'passport';
-import { Strategy as LocalStrategy } from 'passport-local';
-import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
+import passport from 'passport';    // Import passport authentication module
+import dotenv from 'dotenv';        // Import dotenv to manage environment variables
+import { Strategy as LocalStrategy } from 'passport-local';         // Import local strategy for username/password authentication
+import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt'; // Import JWT strategy for token authentication
 //import bcrypt from 'bcrypt';
-import { User } from './models.js';
-import dotenv from 'dotenv';
+import { User } from './models.js'; // Import User model
 
-// Load environment variables from .env file for MongoDB connection
-dotenv.config();
+// Load environment variables from .env file for JWT secret
+dotenv.config();  // Load environment variables from .env file
 
 // Configure the local strategy for username and password authentication    
 passport.use(new LocalStrategy(
@@ -22,7 +22,6 @@ passport.use(new LocalStrategy(
     },
     async (username, password, done) => {
         try {
-            console.log(`Attempting to authenticate user: ${username} with password ${password}.`); // TEST LOG
             // Find user by username
             const user = await User.findOne({ username });
             if (!user) {
@@ -36,7 +35,6 @@ passport.use(new LocalStrategy(
             }*/
 
             // Authentication successful
-            console.log('User authenticated successfully');
             return done(null, user);
         } catch (error) {
             return done(error);
@@ -48,7 +46,7 @@ passport.use(new LocalStrategy(
 passport.use(new JWTStrategy(
     {
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKey: 'my_jwt_secret'
+        secretOrKey: process.env.JWT_SECRET // Secret key for verifying JWTs from .env file. NO HARDCODED SECRETS!
     },
     async (jwtPayload, done) => {
         try {
