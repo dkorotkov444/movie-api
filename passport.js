@@ -22,7 +22,7 @@ passport.use(new LocalStrategy(
     },
     async (username, password, done) => {
         try {
-            console.log(`Attempting to authenticate user: ${username} with password ${password}.`);
+            console.log(`Attempting to authenticate user: ${username} with password ${password}.`); // TEST LOG
             // Find user by username
             const user = await User.findOne({ username });
             if (!user) {
