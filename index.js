@@ -18,7 +18,7 @@ import dotenv from 'dotenv';                // Import dotenv to manage environme
 
 // Load environment variables from .env file
 dotenv.config();                             // Load environment variables from .env file
-const { DB_URI, SERVER_PORT } = process.env; // Destructure environment variables
+const { ADMIN_USERNAME, DB_URI, SERVER_PORT } = process.env; // Destructure environment variables
 
 // Connect to MongoDB database
 mongoose.connect(DB_URI)
@@ -196,6 +196,12 @@ app.get('/movies/directors/:directorName', passport.authenticate('jwt', { sessio
 
 // Returns a list of all users
 app.get('/users', passport.authenticate('jwt', { session: false }), async (req,res) => {
+    
+  // Validate that only "admin" user can access the list of users
+  if (req.user.username !== ADMIN_USERNAME) {
+    return res.status(403).send('Permission denied: only admin can access this resource.');
+  }
+
   await User.find()
     .then(users => res.status(200).json(users))
     .catch(err => res.status(500).send('Error: ' + err));
@@ -234,6 +240,11 @@ app.patch('/users/:username', passport.authenticate('jwt', { session: false }), 
   const { username } = req.params;
   const { newUsername, newPassword, newEmail, newBirthDate } = req.body;
 
+  // Validate that user updates own profile by checking if the authenticated user's username matches the username in the URL
+  if (req.user.username !== username) {
+    return res.status(403).send('Permission denied: you can only update your own profile.');
+  }
+
   try {
     // Build the update object with only the properties that exist in the request body
     const updateFields = {};
@@ -270,6 +281,12 @@ app.patch('/users/:username', passport.authenticate('jwt', { session: false }), 
 // Deregisters (deletes) user with provided username
 app.delete('/users/:username', passport.authenticate('jwt', { session: false }), async (req,res) => {
   const {username} = req.params;
+  
+  // Validate that user deletes own profile by checking if the authenticated user's username matches the username in the URL
+  if (req.user.username !== username) {
+    return res.status(403).send('Permission denied: you can only delete your own profile.');
+  }
+
   await User.findOneAndDelete({ username: username })
     .then(user => {
       if (user) {
@@ -284,6 +301,12 @@ app.delete('/users/:username', passport.authenticate('jwt', { session: false }),
 // Adds a movie to a user's favorites by username and movie title
 app.patch('/users/:username/:movieTitle', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { username, movieTitle } = req.params;
+  
+  // Validate that user updates own favorites by checking if the authenticated user's username matches the username in the URL
+  if (req.user.username !== username) {
+    return res.status(403).send('Permission denied: you can only update your own favorites list.');
+  }
+
   try {
     // Find the movie document to get its _id
     const movie = await Movie.findOne({ title: movieTitle }).select('_id');
@@ -300,8 +323,9 @@ app.patch('/users/:username/:movieTitle', passport.authenticate('jwt', { session
     if (!updatedUser) {
       return res.status(404).send(`User ${username} not found.`);
     }
-
-    res.status(200).json(updatedUser);
+    // Strip Mongoose properties and exclude password from the response
+    const { password, ...publicProfile } = updatedUser.toObject();
+    res.status(200).json(publicProfile);
 
   } catch (err) {
     console.error(err);
@@ -312,6 +336,12 @@ app.patch('/users/:username/:movieTitle', passport.authenticate('jwt', { session
 // Removes a movie from user's favorites by username and movie title  --- TESTED
 app.delete('/users/:username/:movieTitle', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { username, movieTitle } = req.params;
+    
+  // Validate that user updates own favorites by checking if the authenticated user's username matches the username in the URL
+  if (req.user.username !== username) {
+    return res.status(403).send('Permission denied: you can only update your own favorites list.');
+  }
+
   try {
     // Find the movie document to get its _id
     const movie = await Movie.findOne({ title: movieTitle }).select('_id');
@@ -329,7 +359,9 @@ app.delete('/users/:username/:movieTitle', passport.authenticate('jwt', { sessio
       return res.status(404).send(`User ${username} not found.`);
     }
 
-    res.status(200).json(updatedUser);
+    // Strip Mongoose properties and exclude password from the response
+    const { password, ...publicProfile } = updatedUser.toObject();
+    res.status(200).json(publicProfile);
 
   } catch (err) {
     console.error(err);
