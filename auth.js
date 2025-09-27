@@ -3,18 +3,23 @@
 * Uses ESM syntax
 */
 
-// Import required frameworks and modules
+// --- IMPORTS ---
+// --- Core Node.js Modules ---
+// --- Third-Party Frameworks & Utilities ---
+import dotenv from 'dotenv';        // Import dotenv to manage environment variables
+import { Router } from 'express';   // Import Router from express to create route handlers
 import jwt from 'jsonwebtoken';     // Import jsonwebtoken for creating and verifying JWTs
 import passport from 'passport';    // Import passport authentication module
+// --- Local Modules (Must be imported/executed) ---
 import './passport.js';             // Import passport strategies (runs passport.js)
-import { Router } from 'express';   // Import Router from express to create route handlers
-import dotenv from 'dotenv';        // Import dotenv to manage environment variables
 
-// Load environment variables from .env file for JWT secret
-dotenv.config( );  // Load environment variables from .env file
+// --- ENVIRONMENT CONFIGURATION ---
+dotenv.config();    // Load environment variables from .env file for JWT secret
+const { JWT_SECRET } = process.env; // Destructure environment variables
 
+// --- MODULE CONSTANTS ---
 const authRouter = Router();  // Create a new router instance
-const jwtSecret = process.env.JWT_SECRET; // Secret key for JWT signing and verification from JWTStrategy in passport.js. NO HARDCODED SECRETS!
+const jwtSecret = JWT_SECRET; // Secret key for JWT signing and verification from JWTStrategy in passport.js. NO HARDCODED SECRETS!
 
 // Function to generate a JWT for a user
 const generateJWT = (user) => {

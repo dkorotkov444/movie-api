@@ -3,8 +3,15 @@
 * Uses ESM syntax
 */
 
-// Import required frameworks and modules
-import mongoose from 'mongoose';
+// --- IMPORTS ---
+// --- Core Node.js Modules ---
+// --- Third-Party Frameworks & Utilities ---
+import mongoose from 'mongoose';    // Import mongoose for MongoDB object modeling
+import bcrypt from 'bcrypt';        // Import bcrypt for password hashing
+// --- Local Modules (Must be imported/executed) ---
+
+
+// --- MODULE CONSTANTS ---
 const { Schema, model } = mongoose;
 
 // Define the user schema
@@ -15,6 +22,17 @@ const userSchema = new Schema({
     birth_date: { type: Date},
     favorites: [{ type: Schema.Types.ObjectId, ref: 'Movie' }]
 });
+
+// Hash the password before saving a user
+userSchema.statics.hashPassword = async function(password) {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(password, salt);
+};
+
+// Method to validate password during login
+userSchema.methods.validatePassword = async function(password) {
+    return bcrypt.compare(password, this.password);
+};
 
 // Define the movie schema
 const movieSchema = new Schema({

@@ -3,22 +3,35 @@
 * Uses ESM syntax
 */
 
-// Import required frameworks and modules
-import express from 'express';  // Import Express framework
-import morgan from 'morgan';    // Import Morgan logging library
-import fs from 'fs';            // Import filesystem module
-import path from 'path';        // Import path module
+// --- IMPORTS ---
+// --- Core Node.js Modules ---
+import fs from 'fs';                        // Import filesystem module
+import path from 'path';                    // Import path module
 import { fileURLToPath } from 'url';        // Import fileURLToPath from the url module
-import mongoose from 'mongoose';            // Import Mongoose ODM
-import { User, Movie } from './models.js';  // Import User and Movie models
-import passport from 'passport';            // Import passport authentication module
-import './passport.js';                     // Import passport strategies (runs passport.js) 
-import authRouter from './auth.js';             // Imports Router function from auth.js
+// --- Third-Party Frameworks & Utilities ---
 import dotenv from 'dotenv';                // Import dotenv to manage environment variables
+import express from 'express';              // Import Express framework
+import morgan from 'morgan';                // Import Morgan logging library
+import mongoose from 'mongoose';            // Import Mongoose ODM
+import passport from 'passport';            // Import passport authentication module
+import cors from 'cors';                    // Import CORS to manage cross-origin requests
+// --- Local Modules (Must be imported/executed) ---
+import { User, Movie } from './models.js';  // Import User and Movie models
+import './passport.js';                     // Import passport strategies (runs passport.js) 
+import authRouter from './auth.js';         // Imports Router function from auth.js
 
-// Load environment variables from .env file
-dotenv.config();                             // Load environment variables from .env file
+
+
+// --- ENVIRONMENT CONFIGURATION ---
+dotenv.config();                            // Load environment variables from .env file
 const { ADMIN_USERNAME, DB_URI, SERVER_PORT } = process.env; // Destructure environment variables
+
+// --- APPLICATION CONSTANTS ---
+// Get the directory name for the current module in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const myPort = SERVER_PORT || 8080;         // Define at which local port runs the web server
+//const allowedOrigins = [`http://localhost:${myPort}`]; // Define allowed origins for CORS
 
 // Connect to MongoDB database
 mongoose.connect(DB_URI)
@@ -27,109 +40,35 @@ mongoose.connect(DB_URI)
 
 // Create an Express application
 const app = express();
-const myPort = SERVER_PORT || 8080;        // Define at which local port runs the web server
-
-// Get the directory name for the current module in ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Create a write stream (in append mode) a ‘log.txt’ file is created in root directory
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'files/log.txt'), {flags: 'a'})
 
-/*  OBSOLETE - DELETE AFTER TESTING
-// Define JSON data movies (also available in public/movies.json)
-let movies = [
-  {
-    Title: 'Reservoir Dogs',
-    Description: `Reservoir Dogs is a 1992 American crime film written and directed by Quentin Tarantino in his feature-length directorial debut.
-      The film is regarded as a classic of independent film and a cult film.`,
-    Director: {
-      Name: 'Quentin Tarantino',
-      Bio: `Quentin Jerome Tarantino is an American filmmaker, actor, and author. His films are characterized by graphic violence, 
-        extended dialogue often featuring much profanity, and references to popular culture. His work has earned a cult following 
-        alongside critical and commercial success; he has been named by some as the most influential director of his generation and 
-        has received numerous awards and nominations, including two Academy Awards, two BAFTA Awards, and four Golden Globe Awards. 
-        His films have grossed more than $1.9 billion worldwide.`,
-      Born: '27.03.1963'
-    },
-    Genre: {
-      Name: 'Crime',
-      Description: 'Crime film is a film belonging to the crime fiction genre. Films of this genre generally involve various aspects of crime.'
-    },
-    Released: 1992,
-    ImageURL: 'https://en.wikipedia.org/wiki/File:Reservoir_Dogs.png',
-    Feature: 'Feature',
-    Starring:['Harvey Keitel', 'Tim Roth', 'Chris Penn', 'Steve Buscemi', 'Lawrence Tierney', 'Michael Madsen', 'Quentin Tarantino', 'Edward Bunker']
-  },
-  {
-    Title: 'The Godfather Part II',
-    Description: `The Godfather Part II is an American epic crime film produced and directed by Francis Ford Coppola, loosely based on the 1969 novel The Godfather by Mario Puzo, 
-      who co-wrote the screenplay with Coppola. It is both a sequel and a prequel to the 1972 film The Godfather, presenting parallel dramas: one picks up the 1958 story of Michael Corleone (Al Pacino), 
-      the new Don of the Corleone family, protecting the family business in the aftermath of an attempt on his life; the other covers the journey of his father, Vito Corleone (Robert De Niro), 
-      from his Sicilian childhood to the founding of his family enterprise in New York City.`,
-    Director: {
-      Name: 'Francis Ford Coppola',
-      Bio: `Francis Ford Coppola is an American filmmaker. Considered one of the leading figures of the New Hollywood era as well as one of the pioneers of the gangster film genre, Coppola is widely 
-        regarded as one of the greatest and most influential filmmakers in the history of cinema. Coppola is the recipient of five Academy Awards, a BAFTA Award, three Golden Globe Awards, and two Palmes d'Or, 
-        in addition to nominations for two Emmy Awards and a Grammy Award. Coppola was honored with the Irving G. Thalberg Memorial Award in 2010, the Kennedy Center Honors in 2024, and the AFI Life Achievement Award in 2025.`,
-      Born: '07.04.1939'
-    },
-    Genre: {
-      Name: 'Crime',
-      Description: 'Crime film is a film belonging to the crime fiction genre. Films of this genre generally involve various aspects of crime.'
-    },
-    Released: 1974,
-    ImageURL: 'https://en.wikipedia.org/wiki/File:Godfather_part_ii.jpg',
-    Feature: 'Feature',
-    Starring:['Robert De Niro', 'Al Pacino', 'Robert Duvall', 'Diane Keaton', 'Talia Shire', 'Morgana King', 'John Cazale', 'Marianna Hill', 'Lee Strasberg']
-  },
-  {
-    Title: 'Predator',
-    Description: `Predator is a 1987 American science fiction action horror film directed by John McTiernan and written by brothers Jim and John Thomas.
-      Arnold Schwarzenegger stars as Dutch Schaefer, the leader of an elite paramilitary rescue team on a mission to save hostages in guerrilla-held 
-      territory in a Central American rainforest, who encounter the deadly Predator, a skilled, technologically advanced extraterrestrial who stalks and hunts them down.`,
-    Director: {
-      Name: 'John McTiernan',
-      Bio: `John Campbell McTiernan Jr. is an American filmmaker best known for his action films. His work as director includes Predator (1987), Die Hard (1988), and The Hunt for Red October (1990).`,
-      Born: '08.01.1951'
-    },
-    Genre: {
-      Name: 'Sci-Fi',
-      Description: 'Science fiction film is a film genre that uses speculative, fictional science-based depictions of phenomena that are not fully accepted by mainstream science, such as extraterrestrial lifeforms, spacecraft, robots, cyborgs, mutants, interstellar travel, time travel, or other technologies.'
-    },
-    Released: 1987,
-    ImageURL: 'https://en.wikipedia.org/wiki/File:Predator_Movie.jpg',
-    Feature: 'Feature',
-    Starring:['Arnold Schwarzenegger', 'Carl Weathers', 'Bill Duke', 'Richard Chaves', 'Jesse Ventura', 'Sonny Landham', 'Shane Black', 'Elpidia Carrillo']
-  },
-  {
-    Title: 'Zombeavers',
-    Description: `Zombeavers is an American horror comedy film directed by Jordan Rubin, based on a script by Al Kaplan, Jordan Rubin, and Jon Kaplan. 
-      The film follows a group of college kids staying at a riverside cottage that are attacked by a swarm of zombie beavers.`,
-    Director: {
-      Name: 'Jordan Rubin',
-      Bio: `Jordan Rubin is an American film director, born and raised in New York City. While Jordan was still studying at NYU, he began his career in stand-up comedy.`,
-      Born: ''
-    },
-    Genre: {
-      Name: 'Horror',
-      Description: 'Horror film is a film genre that seeks to elicit fear or disgust in its audience for entertainment purposes. It often features supernatural elements, monsters, or psychological terror.'
-    },
-    Released: 2014,
-    ImageURL: 'https://en.wikipedia.org/wiki/File:Zombeavers_film_poster.jpg',
-    Feature: 'Feature',
-    Starring:['Rachel Melvin', 'Cortney Palm', 'Lexi Atkins', 'Hutch Dano', 'Jake Weary', 'Peter Gilroy', 'Rex Linn']
-  }
-];
+// --- INVOKE MIDDLEWARE ---
+app.use(cors());                           // Enable CORS for all origins (for development purposes only; restrict in production)
+/*
+// Security/External Access (CORS)
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allows requests with no origin (like mobile apps or curl requests)
+    if(!origin) return callback(null, true); 
+    
+    // Check if the requesting origin is in our allowed list
+    if(allowedOrigins.indexOf(origin) === -1){
+      let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
+      return callback(new Error(message), false); // Deny access
+    }
+    
+    // Allow access
+    return callback(null, true); 
+  }}));
 */
-
-// Invoke middleware
 app.use(morgan('common', {stream: accessLogStream}));  // Use Morgan logging in standard format (before express.static to log files return)
 app.use(express.json());  // Parse JSON
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies (as sent by HTML forms)
 app.use ('/', authRouter);  // Use the auth.js file for all requests to root URL (login)
 
-// API ENDPOINTS
+// --- API ENDPOINTS ---
 
 // Receive user input
 app.get('/', (req,res) => {
@@ -210,29 +149,45 @@ app.get('/users', passport.authenticate('jwt', { session: false }), async (req,r
 // Registers new user
 app.post('/users', async (req,res) => {
   const newUser = req.body; // Expecting JSON in request body
-  const { username, email, birth_date } = newUser;
-  const { password, ...publicProfile } = newUser; // Exclude password from the response
+  const { username, password, email, birth_date } = newUser;
   
-  // Check if username is provided
-  if (!newUser || !username) {
-    return res.status(400).send('Missing username in request body');
+  // Check if required fields are provided
+  if (!newUser || !username || !password || !email) {
+    return res.status(400).send('Missing required fields (username, password, email) in request body');
   }
-  await User.findOne({ username: username })
-    .then(user => {
-      if (user) {
-        res.status(409).send('Username already exists');
-      } else {
-        // Create and save the new user
-        User.create({
-          username: username,
-          password: password,
-          email: email,
-          birth_date: birth_date,
-        });
-        res.status(201).json(publicProfile);  // Return the public profile without password
-      }
-    })
-    .catch(err => res.status(500).send('Error: ' + err));
+
+  try {
+    // Check if username already exists
+    const existingUser = await User.findOne({ username: username });
+    if (existingUser) {
+      return res.status(409).send('Username already exists'); // Stop processing and return error
+    }
+
+    // Hash the password
+    const hashedPassword = await User.hashPassword(password);
+
+    // Create and save the new user
+    const createdUser = await User.create({
+      username: username,
+      password: hashedPassword, // Store the hashed password
+      email: email,
+      birth_date: birth_date
+    });
+
+    // Strip Mongoose properties and exclude password from the response
+    const { password: _, ...publicProfile } = createdUser.toObject(); // Use throwaway variable to exclude password
+    res.status(201).json(publicProfile);  // Return the public profile without password
+
+  } catch (err) {
+    // Catch all async errors
+    console.error(err);
+    // Handle Mongoose unique index violation error (e.g., if email already exists)
+    if (err.code === 11000) {
+        return res.status(409).send('Username or email already exists.');
+    }
+    // Catch all other server/databaseerrors (including potential hashing errors)
+    res.status(500).send('Error: ' + err.message);
+  }
 });
 
 // Updates existing user info (username, password, email, date of birth)  --- TESTED
@@ -333,7 +288,7 @@ app.patch('/users/:username/:movieTitle', passport.authenticate('jwt', { session
   }
 });
 
-// Removes a movie from user's favorites by username and movie title  --- TESTED
+// Removes a movie from user's favorites by username and movie title
 app.delete('/users/:username/:movieTitle', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { username, movieTitle } = req.params;
     
@@ -371,7 +326,7 @@ app.delete('/users/:username/:movieTitle', passport.authenticate('jwt', { sessio
 
 // OPTIONAL FEATURES
 
-// Returns the list of actors starring in the movie  --- TESTED
+// Returns the list of actors starring in the movie
 app.get('/movies/:title/starring', passport.authenticate('jwt', { session: false }), async (req,res) => {
   const { title } = req.params;
   await Movie.findOne({ title: title })

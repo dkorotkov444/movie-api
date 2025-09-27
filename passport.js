@@ -3,16 +3,22 @@
 * Uses ESM syntax
 */
 
-// Import required frameworks and modules
-import passport from 'passport';    // Import passport authentication module
+// --- IMPORTS ---
+// --- Core Node.js Modules ---
+// --- Third-Party Frameworks & Utilities ---
 import dotenv from 'dotenv';        // Import dotenv to manage environment variables
+import passport from 'passport';    // Import passport authentication module
 import { Strategy as LocalStrategy } from 'passport-local';         // Import local strategy for username/password authentication
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt'; // Import JWT strategy for token authentication
-//import bcrypt from 'bcrypt';
+// --- Local Modules (Must be imported/executed) ---
 import { User } from './models.js'; // Import User model
 
-// Load environment variables from .env file for JWT secret
-dotenv.config();  // Load environment variables from .env file
+// --- ENVIRONMENT CONFIGURATION ---
+dotenv.config();    // Load environment variables from .env file for JWT secret
+const { JWT_SECRET } = process.env; // Destructure environment variables
+
+// --- MODULE CONSTANTS ---
+const jwtSecret = JWT_SECRET; // Secret key for JWT signing and verification from JWTStrategy in passport.js. NO HARDCODED SECRETS!
 
 // Configure the local strategy for username and password authentication    
 passport.use(new LocalStrategy(
@@ -28,12 +34,6 @@ passport.use(new LocalStrategy(
                 return done(null, false, { message: 'Incorrect username or password.' });
             }
 
-            // Compare password with hashed password
-            /*const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch) {
-                return done(null, false, { message: 'Incorrect username or password.' });
-            }*/
-
             // Authentication successful
             return done(null, user);
         } catch (error) {
@@ -46,7 +46,7 @@ passport.use(new LocalStrategy(
 passport.use(new JWTStrategy(
     {
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKey: process.env.JWT_SECRET // Secret key for verifying JWTs from .env file. NO HARDCODED SECRETS!
+        secretOrKey: jwtSecret // Secret key for verifying JWTs from .env file. NO HARDCODED SECRETS!
     },
     async (jwtPayload, done) => {
         try {
