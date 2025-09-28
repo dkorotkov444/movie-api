@@ -451,6 +451,6 @@ app.use((error, req, res, next) => {
 });
 
 //Start server at defined port
-app.listen(myPort, () => {
+app.listen(myPort, '0.0.0.0',() => {
     console.log(`REEL app is listening on port ${myPort}`);
 });
