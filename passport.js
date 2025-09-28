@@ -31,9 +31,13 @@ passport.use(new LocalStrategy(
             // Find user by username
             const user = await User.findOne({ username });
             if (!user) {
-                return done(null, false, { message: 'Incorrect username or password.' });
+                return done(null, false, { message: 'Incorrect username.' });
             }
-
+            // Validate password
+            const isValid = await user.validatePassword(password);
+            if (!isValid) {
+                return done(null, false, { message: 'Incorrect password.' });
+            }
             // Authentication successful
             return done(null, user);
         } catch (error) {
