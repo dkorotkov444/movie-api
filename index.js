@@ -326,6 +326,7 @@ app.patch('/users/:username/:movieTitle',
     param('movieTitle')
       .isString().withMessage('Movie title must be a string')
       .isLength({ min: 2 }).withMessage('Movie title must be at least 2 characters long')
+      .isAlphanumeric().withMessage('Movie title must contain only letters and numbers and spaces') // Note: Adjust this validation if needed to allow special characters in movie titles
   ],
   passport.authenticate('jwt', { session: false }), async (req, res) => {
 
@@ -378,6 +379,7 @@ app.delete('/users/:username/:movieTitle',
     param('movieTitle')
       .isString().withMessage('Movie title must be a string')
       .isLength({ min: 2 }).withMessage('Movie title must be at least 2 characters long')
+      .isAlphanumeric().withMessage('Movie title must contain only letters and numbers and spaces') // Note: Adjust this validation if needed to allow special characters in movie titles
   ],
   passport.authenticate('jwt', { session: false }), async (req, res) => {
     // Check the validation object for errors

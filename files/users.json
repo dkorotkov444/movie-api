@@ -33,10 +33,10 @@
   },
   {
     "_id": "ObjectId('68cd7ef9d8540b738fcebea7')",
-    "username": "JohnWaters",
+    "username": "JohnnyThunders",
     "password": "H@irsp@ray",
-    "email": "john.waters@example.com",
-    "birth_date": "1946-04-22",
+    "email": "johnny@nydolls.com",
+    "birth_date": "1952-07-15",
     "favorites": [
       "68cd8259d8540b738fcebeb6",
       "68cd8259d8540b738fcebeac"
