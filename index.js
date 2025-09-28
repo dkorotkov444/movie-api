@@ -149,7 +149,7 @@ app.get('/users', passport.authenticate('jwt', { session: false }), async (req,r
 // Registers new user
 app.post('/users', async (req,res) => {
   const newUser = req.body; // Expecting JSON in request body
-  const { username, password, email, birth_date } = newUser;
+  const { username, password, email, birth_date, favorites } = newUser;
   
   // Check if required fields are provided
   if (!newUser || !username || !password || !email) {
@@ -171,7 +171,8 @@ app.post('/users', async (req,res) => {
       username: username,
       password: hashedPassword, // Store the hashed password
       email: email,
-      birth_date: birth_date
+      birth_date: birth_date,
+      favorites: favorites || [] // Default to empty array if not provided
     });
 
     // Strip Mongoose properties and exclude password from the response

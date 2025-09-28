@@ -1,13 +1,14 @@
+[
   {
     "_id": "ObjectId('68cd7e3ed8540b738fcebea4')",
     "username": "LesterBangs",
     "password": "R@w_P0wer!",
     "email": "lester.bangs@example.com",
-    "birth_date": "ISODate('1948-12-14T00:00:00.000Z')",
+    "birth_date": "1948-12-14",
     "favorites": [
-      "ObjectId('68cd8259d8540b738fcebead')",
-      "ObjectId('68cd8259d8540b738fcebeac')",
-      "ObjectId('68cd8259d8540b738fcebeb4')"
+      "68cd8259d8540b738fcebead",
+      "68cd8259d8540b738fcebeac",
+      "68cd8259d8540b738fcebeb4"
     ]
   },
   {
@@ -15,11 +16,11 @@
     "username": "PattiSmith",
     "password": "Horses*1975",
     "email": "patti@gloria.com",
-    "birth_date": "ISODate('1946-12-30T00:00:00.000Z')",
+    "birth_date": "1946-12-30",
     "favorites": [
-      "ObjectId('68cd8259d8540b738fcebeaa')",
-      "ObjectId('68cd8259d8540b738fcebeab')",
-      "ObjectId('68cd8259d8540b738fcebeb3')"
+      "68cd8259d8540b738fcebeaa",
+      "68cd8259d8540b738fcebeab",
+      "68cd8259d8540b738fcebeb3"
     ]
   },
   {
@@ -27,18 +28,18 @@
     "username": "IggyPop",
     "password": "TheStooges_1",
     "email": "iggy.pop@example.com",
-    "birth_date": "ISODate('1947-04-21T00:00:00.000Z')",
-    "favorites": [ "ObjectId('68cd8259d8540b738fcebeaf')" ]
+    "birth_date": "1947-04-21",
+    "favorites": [ "68cd8259d8540b738fcebeaf" ]
   },
   {
     "_id": "ObjectId('68cd7ef9d8540b738fcebea7')",
     "username": "JohnWaters",
     "password": "H@irsp@ray",
     "email": "john.waters@example.com",
-    "birth_date": "ISODate('1946-04-22T00:00:00.000Z')",
+    "birth_date": "1946-04-22",
     "favorites": [
-      "ObjectId('68cd8259d8540b738fcebeb6')",
-      "ObjectId('68cd8259d8540b738fcebeac')"
+      "68cd8259d8540b738fcebeb6",
+      "68cd8259d8540b738fcebeac"
     ]
   },
   {
@@ -46,12 +47,12 @@
     "username": "JohnnyRamone",
     "password": "Hey_H0_LetsGo",
     "email": "johnny.ramone@example.com",
-    "birth_date": "ISODate('1951-05-19T00:00:00.000Z')",
+    "birth_date": "1951-05-19",
     "favorites": [
-      "ObjectId('68cd8259d8540b738fcebeaf')",
-      "ObjectId('68cd8259d8540b738fcebead')",
-      "ObjectId('68cd8259d8540b738fcebeb1')",
-      "ObjectId('68cd8259d8540b738fcebeb7')"
+      "68cd8259d8540b738fcebeaf",
+      "68cd8259d8540b738fcebead",
+      "68cd8259d8540b738fcebeb1",
+      "68cd8259d8540b738fcebeb7"
     ]
   },
   {
@@ -59,30 +60,30 @@
     "username": "SidVicious",
     "password": "Anarchy_UK",
     "email": "sid.vicious@sexpistols.com",
-    "birth_date": "ISODate('1957-05-10T00:00:00.000Z')",
+    "birth_date": "1957-05-10",
     "favorites": [
-      "ObjectId('68cd8259d8540b738fcebeac')",
-      "ObjectId('68cd8259d8540b738fcebeb7')"
-    ],
+      "68cd8259d8540b738fcebeac",
+      "68cd8259d8540b738fcebeb7"
+    ]
   },
   {
     "_id": "ObjectId('68d3ae62005a108e2b2e4ac1')",
     "username": "JoeStrummer",
     "password": "%stay_#_Go",
     "email": "joe@theclash.com",
-    "birth_date": "ISODate('1952-08-21T00:00:00.000Z')",
-    "favorites": [],
+    "birth_date": "1952-08-21",
+    "favorites": []
   },
   {
     "_id": "ObjectId('68d7cdc0bfbd4159b5d46573')",
     "username": "admin",
     "password": "admin_password",
     "email": "admin@movie-api.com",
-    "birth_date": "ISODate('1643-09-25T00:00:00.000Z')",
+    "birth_date": "1643-09-25",
     "favorites": [
-      "ObjectId('68cd8259d8540b738fcebeae')",
-      "ObjectId('68cd8259d8540b738fcebead')"
-    ],
+      "68cd8259d8540b738fcebeae",
+      "68cd8259d8540b738fcebead"
+    ]
   },
   {
     "_id": "ObjectId('68d8c58072e6143f2abf7cdb')",
@@ -90,5 +91,6 @@
     "password": "%Punk#N0t&Dead",
     "email": "wattie@uk82.com",
     "birth_date": "ISODate('1957-07-24T00:00:00.000Z')",
-    "favorites": [],
+    "favorites": []
   }
+]
