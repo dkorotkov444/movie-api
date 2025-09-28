@@ -15,11 +15,11 @@ import morgan from 'morgan';                // Import Morgan logging library
 import mongoose from 'mongoose';            // Import Mongoose ODM
 import passport from 'passport';            // Import passport authentication module
 import cors from 'cors';                    // Import CORS to manage cross-origin requests
+import { check, param, validationResult } from 'express-validator'; // Import express-validator for input validation
 // --- Local Modules (Must be imported/executed) ---
 import { User, Movie } from './models.js';  // Import User and Movie models
 import './passport.js';                     // Import passport strategies (runs passport.js) 
 import authRouter from './auth.js';         // Imports Router function from auth.js
-
 
 
 // --- ENVIRONMENT CONFIGURATION ---
@@ -33,7 +33,8 @@ const __dirname = path.dirname(__filename);
 const myPort = SERVER_PORT || 8080;         // Define at which local port runs the web server
 //const allowedOrigins = [`http://localhost:${myPort}`]; // Define allowed origins for CORS
 
-// Connect to MongoDB database
+
+// --- CONNECT TO MongoDB DATABASE ---
 mongoose.connect(DB_URI)
   .then(() => console.log('Connected to MongoDB database reelDB'))
   .catch(err => console.error('Could not connect to MongoDB database:', err));  
@@ -67,6 +68,7 @@ app.use(morgan('common', {stream: accessLogStream}));  // Use Morgan logging in 
 app.use(express.json());  // Parse JSON
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies (as sent by HTML forms)
 app.use ('/', authRouter);  // Use the auth.js file for all requests to root URL (login)
+
 
 // --- API ENDPOINTS ---
 
@@ -147,182 +149,276 @@ app.get('/users', passport.authenticate('jwt', { session: false }), async (req,r
 });
 
 // Registers new user
-app.post('/users', async (req,res) => {
-  const newUser = req.body; // Expecting JSON in request body
-  const { username, password, email, birth_date, favorites } = newUser;
-  
-  // Check if required fields are provided
-  if (!newUser || !username || !password || !email) {
-    return res.status(400).send('Missing required fields (username, password, email) in request body');
-  }
+app.post('/users', 
+  [ check('username')
+      .isString().withMessage('Username must be a string')
+      .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
+      .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
+    check('password')
+      .not().isEmpty().withMessage('Password is required')
+      .isString().withMessage('Password must be a string'),
+    check('email').isEmail().withMessage('Invalid email format'),
+    check('birth_date').isDate().withMessage('Invalid date format'),
+  ], 
+  async (req,res) => {
 
-  try {
-    // Check if username already exists
-    const existingUser = await User.findOne({ username: username });
-    if (existingUser) {
-      return res.status(409).send('Username already exists'); // Stop processing and return error
+    // Check the validation object for errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
     }
 
-    // Hash the password
-    const hashedPassword = await User.hashPassword(password);
-
-    // Create and save the new user
-    const createdUser = await User.create({
-      username: username,
-      password: hashedPassword, // Store the hashed password
-      email: email,
-      birth_date: birth_date,
-      favorites: favorites || [] // Default to empty array if not provided
-    });
-
-    // Strip Mongoose properties and exclude password from the response
-    const { password: _, ...publicProfile } = createdUser.toObject(); // Use throwaway variable to exclude password
-    res.status(201).json(publicProfile);  // Return the public profile without password
-
-  } catch (err) {
-    // Catch all async errors
-    console.error(err);
-    // Handle Mongoose unique index violation error (e.g., if email already exists)
-    if (err.code === 11000) {
-        return res.status(409).send('Username or email already exists.');
+    // Extract the user info from the JSON request body
+    const newUser = req.body;
+    const { username, password, email, birth_date, favorites } = newUser;
+    
+    // Check if required fields are provided
+    if (!newUser || !username || !password || !email) {
+      return res.status(400).send('Missing required fields (username, password, email) in request body');
     }
-    // Catch all other server/databaseerrors (including potential hashing errors)
-    res.status(500).send('Error: ' + err.message);
-  }
+
+    try {
+      // Check if username already exists
+      const existingUser = await User.findOne({ username: username });
+      if (existingUser) {
+        return res.status(409).send('Username already exists'); // Stop processing and return error
+      }
+
+      // Hash the password
+      const hashedPassword = await User.hashPassword(password);
+
+      // Create and save the new user
+      const createdUser = await User.create({
+        username: username,
+        password: hashedPassword, // Store the hashed password
+        email: email,
+        birth_date: birth_date,
+        favorites: favorites || [] // Default to empty array if not provided
+      });
+
+      // Strip Mongoose properties and exclude password from the response
+      const { password: _, ...publicProfile } = createdUser.toObject(); // Use throwaway variable to exclude password
+      res.status(201).json(publicProfile);  // Return the public profile without password
+
+    } catch (err) {
+      // Catch all async errors
+      console.error(err);
+      // Handle Mongoose unique index violation error (e.g., if email already exists)
+      if (err.code === 11000) {
+          return res.status(409).send('Username or email already exists.');
+      }
+      // Catch all other server/databaseerrors (including potential hashing errors)
+      res.status(500).send('Error: ' + err.message);
+    }
 });
 
-// Updates existing user info (username, password, email, date of birth)  --- TESTED
-app.patch('/users/:username', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  const { username } = req.params;
-  const { newUsername, newPassword, newEmail, newBirthDate } = req.body;
+// Updates existing user info (username, password, email, date of birth)
+app.patch('/users/:username', 
+  [ check('newUsername')
+      .optional()
+      .isString().withMessage('Username must be a string')
+      .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
+      .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
+    check('newPassword')
+      .optional()
+      .isString().withMessage('Password must be a string'),
+    check('newEmail')
+      .optional()
+      .isEmail().withMessage('Invalid email format'),
+    check('newBirthDate')
+      .optional()
+      .isDate().withMessage('Invalid date format'),
+    param('username')
+      .isString().withMessage('Username must be a string')
+      .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
+      .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
+  ],
+  passport.authenticate('jwt', { session: false }), async (req, res) => {
 
-  // Validate that user updates own profile by checking if the authenticated user's username matches the username in the URL
-  if (req.user.username !== username) {
-    return res.status(403).send('Permission denied: you can only update your own profile.');
-  }
+    // Check the validation object for errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    } 
 
-  try {
-    // Build the update object with only the properties that exist in the request body
-    const updateFields = {};
-    if (newUsername !== undefined) updateFields.username = newUsername;
-    if (newPassword !== undefined) updateFields.password = newPassword;
-    if (newEmail !== undefined) updateFields.email = newEmail;
-    if (newBirthDate !== undefined) updateFields.birth_date = newBirthDate;
+    // Extract the username from the URL and new user info from the request body
+    const { username } = req.params;
+    const { newUsername, newPassword, newEmail, newBirthDate } = req.body;
 
-    // Check if there are any fields to update
-    if (Object.keys(updateFields).length === 0) {
-      return res.status(400).send('No fields provided for update.');
+    // Validate that user updates own profile by checking if the authenticated user's username matches the username in the URL
+    if (req.user.username !== username) {
+      return res.status(403).send('Permission denied: you can only update your own profile.');
     }
-    // Use findOneAndUpdate to find and update the user document
-    const updatedUser = await User.findOneAndUpdate(
-      { username: username },
-      { $set: updateFields },
-      { new: true }
-    );
 
-    if (!updatedUser) {
-      return res.status(404).send(`User ${username} not found`);
+    try {
+      // Build the update object with only the properties that exist in the request body
+      const updateFields = {};
+      if (newUsername !== undefined) updateFields.username = newUsername;
+      if (newPassword !== undefined) updateFields.password = newPassword;
+      if (newEmail !== undefined) updateFields.email = newEmail;
+      if (newBirthDate !== undefined) updateFields.birth_date = newBirthDate;
+
+      // Check if there are any fields to update
+      if (Object.keys(updateFields).length === 0) {
+        return res.status(400).send('No fields provided for update.');
+      }
+      // Use findOneAndUpdate to find and update the user document
+      const updatedUser = await User.findOneAndUpdate(
+        { username: username },
+        { $set: updateFields },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(404).send(`User ${username} not found`);
+      }
+
+      // Strip Mongoose properties and exclude password from the response
+      const { password, ...publicProfile } = updatedUser.toObject();
+      res.status(200).json(publicProfile);
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Error: ' + err.message);
     }
-
-    // Strip Mongoose properties and exclude password from the response
-    const { password, ...publicProfile } = updatedUser.toObject();
-    res.status(200).json(publicProfile);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error: ' + err.message);
-  }
 });
 
 // Deregisters (deletes) user with provided username
-app.delete('/users/:username', passport.authenticate('jwt', { session: false }), async (req,res) => {
-  const {username} = req.params;
-  
-  // Validate that user deletes own profile by checking if the authenticated user's username matches the username in the URL
-  if (req.user.username !== username) {
-    return res.status(403).send('Permission denied: you can only delete your own profile.');
-  }
+app.delete('/users/:username', 
+  [ param('username')
+      .isString().withMessage('Username must be a string')
+      .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
+      .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
+  ],
+  passport.authenticate('jwt', { session: false }), async (req,res) => {
 
-  await User.findOneAndDelete({ username: username })
-    .then(user => {
-      if (user) {
-        res.status(200).send(`User ${username} was deregistered`);
-      } else {
-        res.status(404).send(`User ${username} not found`);
-      }
-    })
-    .catch(err => res.status(500).send('Error: ' + err));
+    // Check the validation object for errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    // Extract the username from the URL
+    const {username} = req.params;
+    
+    // Validate that user deletes own profile by checking if the authenticated user's username matches the username in the URL
+    if (req.user.username !== username) {
+      return res.status(403).send('Permission denied: you can only delete your own profile.');
+    }
+
+    await User.findOneAndDelete({ username: username })
+      .then(user => {
+        if (user) {
+          res.status(200).send(`User ${username} was deregistered`);
+        } else {
+          res.status(404).send(`User ${username} not found`);
+        }
+      })
+      .catch(err => res.status(500).send('Error: ' + err));
 });
 
 // Adds a movie to a user's favorites by username and movie title
-app.patch('/users/:username/:movieTitle', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  const { username, movieTitle } = req.params;
-  
-  // Validate that user updates own favorites by checking if the authenticated user's username matches the username in the URL
-  if (req.user.username !== username) {
-    return res.status(403).send('Permission denied: you can only update your own favorites list.');
-  }
+app.patch('/users/:username/:movieTitle', 
+  [ param('username')
+      .isString().withMessage('Username must be a string')
+      .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
+      .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
+    param('movieTitle')
+      .isString().withMessage('Movie title must be a string')
+      .isLength({ min: 2 }).withMessage('Movie title must be at least 2 characters long')
+  ],
+  passport.authenticate('jwt', { session: false }), async (req, res) => {
 
-  try {
-    // Find the movie document to get its _id
-    const movie = await Movie.findOne({ title: movieTitle }).select('_id');
-    if (!movie) {
-      return res.status(404).send(`Movie ${movieTitle} not found.`);
+    // Check the validation object for errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
     }
-    // Use findOneAndUpdate with $addToSet to add the movie to favorites
-    const updatedUser = await User.findOneAndUpdate(
-      { username: username },
-      { $addToSet: { favorites: movie._id } },
-      { new: true } // { new: true } returns the updated document
-    );
-
-    if (!updatedUser) {
-      return res.status(404).send(`User ${username} not found.`);
+    
+    // Extract the username and movie title from the URL
+    const { username, movieTitle } = req.params;
+    
+    // Validate that user updates own favorites by checking if the authenticated user's username matches the username in the URL
+    if (req.user.username !== username) {
+      return res.status(403).send('Permission denied: you can only update your own favorites list.');
     }
-    // Strip Mongoose properties and exclude password from the response
-    const { password, ...publicProfile } = updatedUser.toObject();
-    res.status(200).json(publicProfile);
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error: ' + err.message);
-  }
+    try {
+      // Find the movie document to get its _id
+      const movie = await Movie.findOne({ title: movieTitle }).select('_id');
+      if (!movie) {
+        return res.status(404).send(`Movie ${movieTitle} not found.`);
+      }
+      // Use findOneAndUpdate with $addToSet to add the movie to favorites
+      const updatedUser = await User.findOneAndUpdate(
+        { username: username },
+        { $addToSet: { favorites: movie._id } },
+        { new: true } // { new: true } returns the updated document
+      );
+
+      if (!updatedUser) {
+        return res.status(404).send(`User ${username} not found.`);
+      }
+      // Strip Mongoose properties and exclude password from the response
+      const { password, ...publicProfile } = updatedUser.toObject();
+      res.status(200).json(publicProfile);
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Error: ' + err.message);
+    }
 });
 
 // Removes a movie from user's favorites by username and movie title
-app.delete('/users/:username/:movieTitle', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  const { username, movieTitle } = req.params;
-    
-  // Validate that user updates own favorites by checking if the authenticated user's username matches the username in the URL
-  if (req.user.username !== username) {
-    return res.status(403).send('Permission denied: you can only update your own favorites list.');
-  }
-
-  try {
-    // Find the movie document to get its _id
-    const movie = await Movie.findOne({ title: movieTitle }).select('_id');
-    if (!movie) {
-      return res.status(404).send(`Movie ${movieTitle} not found.`);
-    }
-    // Use findOneAndUpdate with $pull to remove the movie from favorites
-    const updatedUser = await User.findOneAndUpdate(
-      { username: username },
-      { $pull: { favorites: movie._id } },
-      { new: true } // { new: true } returns the updated document
-    );
-
-    if (!updatedUser) {
-      return res.status(404).send(`User ${username} not found.`);
+app.delete('/users/:username/:movieTitle', 
+  [ param('username')
+      .isString().withMessage('Username must be a string')
+      .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
+      .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
+    param('movieTitle')
+      .isString().withMessage('Movie title must be a string')
+      .isLength({ min: 2 }).withMessage('Movie title must be at least 2 characters long')
+  ],
+  passport.authenticate('jwt', { session: false }), async (req, res) => {
+    // Check the validation object for errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
     }
 
-    // Strip Mongoose properties and exclude password from the response
-    const { password, ...publicProfile } = updatedUser.toObject();
-    res.status(200).json(publicProfile);
+    // Extract the username and movie title from the URL
+    const { username, movieTitle } = req.params;
+      
+    // Validate that user updates own favorites by checking if the authenticated user's username matches the username in the URL
+    if (req.user.username !== username) {
+      return res.status(403).send('Permission denied: you can only update your own favorites list.');
+    }
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error: ' + err.message);
-  }
+    try {
+      // Find the movie document to get its _id
+      const movie = await Movie.findOne({ title: movieTitle }).select('_id');
+      if (!movie) {
+        return res.status(404).send(`Movie ${movieTitle} not found.`);
+      }
+      // Use findOneAndUpdate with $pull to remove the movie from favorites
+      const updatedUser = await User.findOneAndUpdate(
+        { username: username },
+        { $pull: { favorites: movie._id } },
+        { new: true } // { new: true } returns the updated document
+      );
+
+      if (!updatedUser) {
+        return res.status(404).send(`User ${username} not found.`);
+      }
+
+      // Strip Mongoose properties and exclude password from the response
+      const { password, ...publicProfile } = updatedUser.toObject();
+      res.status(200).json(publicProfile);
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Error: ' + err.message);
+    }
 });
 
 // OPTIONAL FEATURES
