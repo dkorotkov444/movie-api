@@ -24,13 +24,13 @@ import authRouter from './auth.js';         // Imports Router function from auth
 
 // --- ENVIRONMENT CONFIGURATION ---
 dotenv.config();                            // Load environment variables from .env file
-const { ADMIN_USERNAME, DB_URI, SERVER_PORT } = process.env; // Destructure environment variables
+const { ADMIN_USERNAME, DB_URI, LOCAL_PORT } = process.env; // Destructure environment variables
 
 // --- APPLICATION CONSTANTS ---
 // Get the directory name for the current module in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const myPort = SERVER_PORT || 8080;         // Define at which local port runs the web server
+const myPort = process.env.PORT || LOCAL_PORT || 8080;   // Define at which port runs the web server (1. Heroku PORT, 2. .env LOCAL_PORT, 3. default 8080)
 //const allowedOrigins = [`http://localhost:${myPort}`]; // Define allowed origins for CORS
 
 
