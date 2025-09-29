@@ -5,9 +5,9 @@
 
 // --- IMPORTS ---
 // --- Core Node.js Modules ---
-import fs from 'fs';                        // Import filesystem module
-import path from 'path';                    // Import path module
-import { fileURLToPath } from 'url';        // Import fileURLToPath from the url module
+// import fs from 'fs';                        // Import filesystem module
+// import path from 'path';                    // Import path module
+// import { fileURLToPath } from 'url';        // Import fileURLToPath from the url module
 // --- Third-Party Frameworks & Utilities ---
 import dotenv from 'dotenv';                // Import dotenv to manage environment variables
 import express from 'express';              // Import Express framework
@@ -28,8 +28,8 @@ const { ADMIN_USERNAME, DB_URI, LOCAL_PORT } = process.env; // Destructure envir
 
 // --- APPLICATION CONSTANTS ---
 // Get the directory name for the current module in ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 const myPort = process.env.PORT || LOCAL_PORT || 8080;   // Define at which port runs the web server (1. Heroku PORT, 2. .env LOCAL_PORT, 3. default 8080)
 //const allowedOrigins = [`http://localhost:${myPort}`]; // Define allowed origins for CORS
 
@@ -42,8 +42,8 @@ mongoose.connect(DB_URI)
 // Create an Express application
 const app = express();
 
-// Create a write stream (in append mode) a ‘log.txt’ file is created in root directory
-const accessLogStream = fs.createWriteStream(path.join(__dirname, 'files/log.txt'), {flags: 'a'})
+// Create a local write stream (in append mode) into a ‘files/log.txt’ file 
+// const accessLogStream = fs.createWriteStream(path.join(__dirname, 'files/log.txt'), {flags: 'a'})
 
 // --- INVOKE MIDDLEWARE ---
 app.use(cors());                           // Enable CORS for all origins (for development purposes only; restrict in production)
@@ -64,7 +64,8 @@ app.use(cors({
     return callback(null, true); 
   }}));
 */
-app.use(morgan('common', {stream: accessLogStream}));  // Use Morgan logging in standard format (before express.static to log files return)
+// app.use(morgan('common', {stream: accessLogStream}));  // Use Morgan logging in standard format (before express.static to log files return)
+app.use(morgan('common'));  // Use Morgan logging directly to stdout, which Heroku's Logplex captures
 app.use(express.json());  // Parse JSON
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies (as sent by HTML forms)
 app.use ('/', authRouter);  // Use the auth.js file for all requests to root URL (login)
