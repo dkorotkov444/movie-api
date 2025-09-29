@@ -35,9 +35,18 @@ const myPort = process.env.PORT || LOCAL_PORT || 8080;   // Define at which port
 
 
 // --- CONNECT TO MongoDB DATABASE ---
+// Start server ONLY after successful DB connection
 mongoose.connect(DB_URI)
-  .then(() => console.log('Connected to MongoDB database reelDB'))
-  .catch(err => console.error('Could not connect to MongoDB database:', err));  
+  .then(() => {
+    console.log('Connected to MongoDB.');
+    app.listen(myPort, '0.0.0.0', () => {
+        console.log(`REEL app listening on port ${myPort}.`);
+    });
+  })
+  .catch(err => {
+    console.error('DB connection failed. Server not started.', err);
+    process.exit(1); 
+  });
 
 // Create an Express application
 const app = express();
@@ -440,10 +449,10 @@ app.get('/movies/:title/starring', passport.authenticate('jwt', { session: false
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Returns information about actor  --- ENDPOINT TESTED, NO LOGIC YET
+/*/ Returns information about actor  --- ENDPOINT TESTED, NO LOGIC YET
 //app.get('/movies/actors/:actorName', (req,res) => {
 //  res.send('Sucessful GET request returning info about actor');    
-//});
+//});*/
 
 // Catch and process any remaining errors
 app.use((error, req, res, next) => {
@@ -451,7 +460,3 @@ app.use((error, req, res, next) => {
     res.status(500).send('Application error');
 });
 
-//Start server at defined port
-app.listen(myPort, '0.0.0.0',() => {
-    console.log(`REEL app is listening on port ${myPort}`);
-});

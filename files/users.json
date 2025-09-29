@@ -92,5 +92,11 @@
     "email": "wattie@uk82.com",
     "birth_date": "ISODate('1957-07-24T00:00:00.000Z')",
     "favorites": []
+  },
+    {
+    "username": "JelloBiafra",
+    "password": "I867r5fou6ghtT-Law",
+    "email": "jb@dkennedys.com",
+    "birth_date": "1958-06-173"
   }
 ]
