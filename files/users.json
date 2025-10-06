@@ -98,5 +98,11 @@
     "password": "I867r5fou6ghtT-Law",
     "email": "jb@dkennedys.com",
     "birth_date": "1958-06-173"
+  },
+  {
+    "username": "BlancoTre",
+    "password": "notblanc",
+    "email": "b3@sample.com",
+    "birth_date": "2003-12-04"
   }
 ]
