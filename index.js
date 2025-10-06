@@ -169,7 +169,9 @@ app.post('/users',
       .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
     check('password')
       .not().isEmpty().withMessage('Password is required')
-      .isString().withMessage('Password must be a string'),
+      .isString().withMessage('Password must be a string')
+      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
+      .isAlphanumeric().withMessage('Password must contain only letters and numbers (no spaces)'),
     check('email').isEmail().withMessage('Invalid email format'),
     check('birth_date').isDate().withMessage('Invalid date format'),
   ], 
@@ -234,7 +236,9 @@ app.patch('/users/:username',
       .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
     check('newPassword')
       .optional()
-      .isString().withMessage('Password must be a string'),
+      .isString().withMessage('Password must be a string')
+      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
+      .isAlphanumeric().withMessage('Password must contain only letters and numbers (no spaces)'),
     check('newEmail')
       .optional()
       .isEmail().withMessage('Invalid email format'),
