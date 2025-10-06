@@ -7,6 +7,9 @@ npm-debug.log*
 .pnpm-store/
 coverage/
 
+# Application logs
+logs/
+
 # Environment files
 .env
 .env.local
@@ -28,10 +31,5 @@ pids
 .vscode/tasks.json
 .history/
 
-# Application log
-files/log.txt
-
-# File archive
-files/movies-old.js
-files/starring.js
-files/reeldb.*
+# Backup files
+data/backups/
