@@ -170,8 +170,12 @@ app.post('/users',
     check('password')
       .not().isEmpty().withMessage('Password is required')
       .isString().withMessage('Password must be a string')
-      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
-      .isAlphanumeric().withMessage('Password must contain only letters and numbers (no spaces)'),
+      .custom(value => {
+        if (typeof value !== 'string') return false;
+        if (value.includes(' ')) throw new Error('Password must not contain spaces');
+        return true;
+      })
+      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
     check('email').isEmail().withMessage('Invalid email format'),
     check('birth_date').isDate().withMessage('Invalid date format'),
   ], 
@@ -237,8 +241,12 @@ app.patch('/users/:username',
     check('newPassword')
       .optional()
       .isString().withMessage('Password must be a string')
-      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
-      .isAlphanumeric().withMessage('Password must contain only letters and numbers (no spaces)'),
+      .custom(value => {
+        if (typeof value !== 'string') return false;
+        if (value.includes(' ')) throw new Error('Password must not contain spaces');
+        return true;
+      })
+      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
     check('newEmail')
       .optional()
       .isEmail().withMessage('Invalid email format'),
