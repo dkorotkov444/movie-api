@@ -85,12 +85,13 @@ Notes:
 
 ## Project structure (high level)
 
-- `index.js` — main Express server and route definitions
-- `auth.js` — login route & JWT generation
-- `passport.js` — Passport local + JWT strategies
-- `models.js` — Mongoose schemas for `User` and `Movie`
-- `files/` — JSON/JS fixtures (movies, users, starring lists, backups)
-- `scripts/` — utility scripts (data migration and cleanup)
+- `src/index.js` — main Express server and route definitions
+- `src/routes/auth.js` — login route & JWT generation
+- `src/config/passport.js` — Passport local + JWT strategies
+- `src/models/models.js` — Mongoose schemas for `User` and `Movie`
+- `data/fixtures/` — small test fixtures / seed data (movies, users, starring lists)
+- `data/backups/` — full database backups (optional, large files)
+- `tools/` — developer utilities (data migration, cleanup)
 
 ## Postman examples
 
@@ -106,6 +107,17 @@ Import `postman_collection.json` into Postman. The collection uses a variable `b
 - CORS is currently enabled for all origins in `index.js` (development convenience). Harden this for production.
 - Movie title validation in some routes uses a conservative alphanumeric check — titles with punctuation may require relaxed validation.
 - Sample user/password pairs are present in `files/users.json` for test/dev purposes; do not use them in production.
+
+## Scripts / tools
+
+- The `scripts/` folder contains maintenance and data-migration utilities (for example `migrate-favorites.js` and `users-cleanup.js`). Treat these as developer tools — run them locally when needed. They are not part of the production server runtime.
+
+## Data files (fixtures / backups)
+
+- The repository contains data files used as fixtures and backups. Suggested location is `data/fixtures/` for test fixtures (movies, starring lists, small `users.json` for testing) and `data/backups/` for full database exports/backups.
+- Should you push `data/` to GitHub? It depends:
+	- If the data contains no secrets and is small (test fixtures), keeping them in the repo is convenient for CI, tests, and onboarding. Use `data/fixtures/` for this.
+	- For full database backups or large exports (`reeldb.*.backup*.json`) you may prefer to keep them outside the repo or in a separate releases/storage bucket (they can bloat the repository). Put backups in `data/backups/` and consider adding them to `.gitignore` if you don't want them versioned.
 
 ## Dependencies
 See `package.json` for the full list. Key libraries: `express`, `mongoose`, `passport`, `passport-jwt`, `passport-local`, `bcrypt`, `jsonwebtoken`, `express-validator`.

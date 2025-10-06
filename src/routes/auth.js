@@ -11,7 +11,7 @@ import { Router } from 'express';   // Import Router from express to create rout
 import jwt from 'jsonwebtoken';     // Import jsonwebtoken for creating and verifying JWTs
 import passport from 'passport';    // Import passport authentication module
 // --- Local Modules (Must be imported/executed) ---
-import './passport.js';             // Import passport strategies (runs passport.js)
+import '../config/passport.js';             // Import passport strategies (runs passport.js)
 
 // --- ENVIRONMENT CONFIGURATION ---
 dotenv.config();    // Load environment variables from .env file for JWT secret

@@ -17,9 +17,9 @@ import passport from 'passport';            // Import passport authentication mo
 import cors from 'cors';                    // Import CORS to manage cross-origin requests
 import { check, param, validationResult } from 'express-validator'; // Import express-validator for input validation
 // --- Local Modules (Must be imported/executed) ---
-import { User, Movie } from './models.js';  // Import User and Movie models
-import './passport.js';                     // Import passport strategies (runs passport.js) 
-import authRouter from './auth.js';         // Imports Router function from auth.js
+import { User, Movie } from './models/models.js';  // Import User and Movie models
+import './config/passport.js';                     // Import passport strategies (runs passport.js) 
+import authRouter from './routes/auth.js';         // Imports Router function from auth.js
 
 
 // --- ENVIRONMENT CONFIGURATION ---
@@ -33,8 +33,8 @@ const { ADMIN_USERNAME, DB_URI, LOCAL_PORT } = process.env; // Destructure envir
 // const __dirname = path.dirname(__filename);
 
 // Define at which port runs the web server (1. Heroku PORT, 2. .env LOCAL_PORT, 3. default 8080)
-const myPort = process.env.PORT || LOCAL_PORT || 8080;   
-//const allowedOrigins = [`http://localhost:${myPort}`]; // Define allowed origins for CORS
+const myPort = process.env.PORT || LOCAL_PORT || 8080;
+// const allowedOrigins = [`http://localhost:${myPort}`]; // Define allowed origins for CORS
 
 
 // --- CONNECT TO MongoDB DATABASE ---
@@ -54,8 +54,8 @@ mongoose.connect(DB_URI)
 // Create an Express application
 const app = express();
 
-// Create a local write stream (in append mode) into a ‘files/log.txt’ file 
-// const accessLogStream = fs.createWriteStream(path.join(__dirname, 'files/log.txt'), {flags: 'a'})
+// Create a local write stream (in append mode) into a 'logs/access.log' file
+// const accessLogStream = fs.createWriteStream(path.join(__dirname, 'logs', 'access.log'), { flags: 'a' });
 
 // --- INVOKE MIDDLEWARE ---
 app.use(cors());                           // Enable CORS for all origins (for development purposes only; restrict in production)

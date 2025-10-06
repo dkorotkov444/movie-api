@@ -11,7 +11,7 @@
 
 import mongoose from 'mongoose';
 // Import 'User' model (from the attached models.js)
-import { User } from '../models.js'; 
+import { User } from '../src/models/models.js'; 
 
 // --- Configuration ---
 // !!! IMPORTANT: REPLACE THIS WITH YOUR ACTUAL MONGODB CONNECTION STRING !!!

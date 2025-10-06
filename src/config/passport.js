@@ -11,7 +11,7 @@ import passport from 'passport';    // Import passport authentication module
 import { Strategy as LocalStrategy } from 'passport-local';         // Import local strategy for username/password authentication
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt'; // Import JWT strategy for token authentication
 // --- Local Modules (Must be imported/executed) ---
-import { User } from './models.js'; // Import User model
+import { User } from '../models/models.js'; // Import User model
 
 // --- ENVIRONMENT CONFIGURATION ---
 dotenv.config();    // Load environment variables from .env file for JWT secret
