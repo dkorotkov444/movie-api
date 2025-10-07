@@ -92,22 +92,22 @@ app.get('/', (req,res) => {
 
 // ESSENTIAL FEATURES
 
-// Returns the list of all movies (titles only)
-app.get('/movies', passport.authenticate('jwt', { session: false }), async(req,res) => {
+// 1. Returns the list of all movies (titles only)
+app.get('/movies', /*passport.authenticate('jwt', { session: false }),*/ async(req,res) => {
   await Movie.find()
     .then(movies => res.status(200).json(movies.map(movie => movie.title)))
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Returns complete information about all movies
-app.get('/movies/complete', passport.authenticate('jwt', { session: false }), async(req,res) => {
+// 2. Returns complete information about all movies
+app.get('/movies/complete', /*passport.authenticate('jwt', { session: false }),*/ async(req,res) => {
   await Movie.find()
     .then(movies => res.status(200).json(movies))
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Returns data (description, genre, director, image URL, etc.) about a single movie by title
-app.get('/movies/:title', passport.authenticate('jwt', { session: false }), async(req,res) => {
+// 3. Returns data (description, genre, director, image URL, etc.) about a single movie by title
+app.get('/movies/:title', /*passport.authenticate('jwt', { session: false }),*/ async(req,res) => {
   const { title } = req.params;
   await Movie.findOne({ title: title })
     .then(movie => {
@@ -120,8 +120,8 @@ app.get('/movies/:title', passport.authenticate('jwt', { session: false }), asyn
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Returns data about a genre (description) by name (e.g., “Thriller”) 
-app.get('/movies/genres/:genreName', passport.authenticate('jwt', { session: false }), async (req,res) => {
+// 4. Returns data about a genre (description) by name (e.g., “Thriller”) 
+app.get('/movies/genres/:genreName', /*passport.authenticate('jwt', { session: false }),*/ async (req,res) => {
   const { genreName } = req.params;
   await Movie.findOne({ 'genre.name': genreName })
     .then(movie => {
@@ -134,8 +134,8 @@ app.get('/movies/genres/:genreName', passport.authenticate('jwt', { session: fal
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Returns data about a director (name, bio, birth year, death year) by name
-app.get('/movies/directors/:directorName', passport.authenticate('jwt', { session: false }), async (req,res) => {
+// 5. Returns data about a director (name, bio, birth year, death year) by name
+app.get('/movies/directors/:directorName', /*passport.authenticate('jwt', { session: false }),*/ async (req,res) => {
   const { directorName } = req.params;
   await Movie.findOne({ 'director.name': directorName })
     .then(movie => {
@@ -148,9 +148,9 @@ app.get('/movies/directors/:directorName', passport.authenticate('jwt', { sessio
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Returns a list of all users
-app.get('/users', passport.authenticate('jwt', { session: false }), async (req,res) => {
-    
+// 6. Returns a list of all users
+app.get('/users', /*passport.authenticate('jwt', { session: false }),*/ async (req,res) => {
+
   // Validate that only "admin" user can access the list of users
   if (req.user.username !== ADMIN_USERNAME) {
     return res.status(403).send('Permission denied: only admin can access this resource.');
@@ -161,7 +161,7 @@ app.get('/users', passport.authenticate('jwt', { session: false }), async (req,r
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Registers new user
+// 7. Registers new user
 app.post('/users', 
   [ check('username')
       .isString().withMessage('Username must be a string')
@@ -231,7 +231,7 @@ app.post('/users',
     }
 });
 
-// Updates existing user info (username, password, email, date of birth)
+// 8. Updates existing user info (username, password, email, date of birth)
 app.patch('/users/:username', 
   [ check('newUsername')
       .optional()
@@ -258,7 +258,7 @@ app.patch('/users/:username',
       .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
       .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
   ],
-  passport.authenticate('jwt', { session: false }), async (req, res) => {
+  /*passport.authenticate('jwt', { session: false }),*/ async (req, res) => {
 
     // Check the validation object for errors
     const errors = validationResult(req);
@@ -311,14 +311,14 @@ app.patch('/users/:username',
     }
 });
 
-// Deregisters (deletes) user with provided username
+// 9. Deregisters (deletes) user with provided username
 app.delete('/users/:username', 
   [ param('username')
       .isString().withMessage('Username must be a string')
       .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
       .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
   ],
-  passport.authenticate('jwt', { session: false }), async (req,res) => {
+  /*passport.authenticate('jwt', { session: false }),*/ async (req,res) => {
 
     // Check the validation object for errors
     const errors = validationResult(req);
@@ -345,7 +345,7 @@ app.delete('/users/:username',
       .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// Adds a movie to a user's favorites by username and movie title
+// 10. Adds a movie to a user's favorites by username and movie title
 app.patch('/users/:username/:movieTitle', 
   [ param('username')
       .isString().withMessage('Username must be a string')
@@ -356,7 +356,7 @@ app.patch('/users/:username/:movieTitle',
       .isLength({ min: 2 }).withMessage('Movie title must be at least 2 characters long')
       .isAlphanumeric().withMessage('Movie title must contain only letters and numbers and spaces') // Note: Adjust this validation if needed to allow special characters in movie titles
   ],
-  passport.authenticate('jwt', { session: false }), async (req, res) => {
+  /*passport.authenticate('jwt', { session: false }),*/ async (req, res) => {
 
     // Check the validation object for errors
     const errors = validationResult(req);
@@ -398,7 +398,7 @@ app.patch('/users/:username/:movieTitle',
     }
 });
 
-// Removes a movie from user's favorites by username and movie title
+// 11. Removes a movie from user's favorites by username and movie title
 app.delete('/users/:username/:movieTitle', 
   [ param('username')
       .isString().withMessage('Username must be a string')
@@ -409,7 +409,7 @@ app.delete('/users/:username/:movieTitle',
       .isLength({ min: 2 }).withMessage('Movie title must be at least 2 characters long')
       .isAlphanumeric().withMessage('Movie title must contain only letters and numbers and spaces') // Note: Adjust this validation if needed to allow special characters in movie titles
   ],
-  passport.authenticate('jwt', { session: false }), async (req, res) => {
+  /*passport.authenticate('jwt', { session: false }),*/ async (req, res) => {
     // Check the validation object for errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -453,8 +453,8 @@ app.delete('/users/:username/:movieTitle',
 
 // OPTIONAL FEATURES
 
-// Returns the list of actors starring in the movie
-app.get('/movies/:title/starring', passport.authenticate('jwt', { session: false }), async (req,res) => {
+// 12. Returns the list of actors starring in the movie
+app.get('/movies/:title/starring', /*passport.authenticate('jwt', { session: false }),*/ async (req,res) => {
   const { title } = req.params;
   await Movie.findOne({ title: title })
     .then(movie => {
