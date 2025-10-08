@@ -93,14 +93,14 @@ app.get('/', (req,res) => {
 // ESSENTIAL FEATURES
 
 // 1. Returns the list of all movies (titles only)
-app.get('/movies', /*passport.authenticate('jwt', { session: false }),*/ async(req,res) => {
+app.get('/movies/list', /*passport.authenticate('jwt', { session: false }),*/ async(req,res) => {
   await Movie.find()
     .then(movies => res.status(200).json(movies.map(movie => movie.title)))
     .catch(err => res.status(500).send('Error: ' + err));
 });
 
 // 2. Returns complete information about all movies
-app.get('/movies/complete', /*passport.authenticate('jwt', { session: false }),*/ async(req,res) => {
+app.get('/movies', /*passport.authenticate('jwt', { session: false }),*/ async(req,res) => {
   await Movie.find()
     .then(movies => res.status(200).json(movies))
     .catch(err => res.status(500).send('Error: ' + err));
