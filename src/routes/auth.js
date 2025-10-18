@@ -42,7 +42,13 @@ authRouter.post('/login', async (req, res) => {
 
         // Generate JWT for the authenticated user
         const token = generateJWT(user);
-        return res.json({ user: { _id: user._id, username: user.username }, token }); // Payload with only user ID and username is more secure
+
+        // Convert the Mongoose document to a plain object and use destructuring to exclude the password
+        const { password: _, ...publicProfile } = user.toObject();
+
+        // Return the full user profile (excluding password) and the JWT token
+        return res.json({ user: publicProfile, token });
+
     })(req, res);
 });
 

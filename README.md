@@ -66,8 +66,8 @@ Invoke-RestMethod -Method Get -Uri http://localhost:8080/movies -Headers @{ Auth
 ## Selected endpoints
 
 - `GET /` — health / welcome
-- `GET /movies` — list of movie titles (protected)
-- `GET /movies/complete` — full movie objects (protected)
+- `GET /movies/list` — list of movie titles (protected)
+- `GET /movies` — full movie objects (protected)
 - `GET /movies/:title` — single movie by title (protected)
 - `GET /movies/genres/:genreName` — genre info (protected)
 - `GET /movies/directors/:directorName` — director info (protected)
