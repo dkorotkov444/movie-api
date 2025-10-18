@@ -345,16 +345,14 @@ app.delete('/users/:username',
       .catch(err => res.status(500).send('Error: ' + err));
 });
 
-// 10. Adds a movie to a user's favorites by username and movie title
-app.patch('/users/:username/:movieTitle', 
+// 10. Adds a movie to a user's favorites by username and movie ID
+app.patch('/users/:username/:movieId', 
   [ param('username')
       .isString().withMessage('Username must be a string')
       .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
       .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
-    param('movieTitle')
-      .isString().withMessage('Movie title must be a string')
-      .isLength({ min: 2 }).withMessage('Movie title must be at least 2 characters long')
-      .isAlphanumeric().withMessage('Movie title must contain only letters and numbers and spaces') // Note: Adjust this validation if needed to allow special characters in movie titles
+    param('movieId')
+      .isMongoId().withMessage('Movie ID must be a valid MongoDB ObjectID')
   ],
   passport.authenticate('jwt', { session: false }), async (req, res) => {
 
@@ -363,9 +361,9 @@ app.patch('/users/:username/:movieTitle',
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
-    
-    // Extract the username and movie title from the URL
-    const { username, movieTitle } = req.params;
+
+    // Extract the username and movie ID from the URL
+    const { username, movieId } = req.params;
     
     // Validate that user updates own favorites by checking if the authenticated user's username matches the username in the URL
     if (req.user.username !== username) {
@@ -374,14 +372,14 @@ app.patch('/users/:username/:movieTitle',
 
     try {
       // Find the movie document to get its _id
-      const movie = await Movie.findOne({ title: movieTitle }).select('_id');
+      const movie = await Movie.findById(movieId);
       if (!movie) {
-        return res.status(404).send(`Movie ${movieTitle} not found.`);
+        return res.status(404).send(`Movie with ID ${movieId} not found.`);
       }
       // Use findOneAndUpdate with $addToSet to add the movie to favorites
       const updatedUser = await User.findOneAndUpdate(
         { username: username },
-        { $addToSet: { favorites: movie._id } },
+        { $addToSet: { favorites: movieId } },
         { new: true } // { new: true } returns the updated document
       );
 
@@ -398,16 +396,14 @@ app.patch('/users/:username/:movieTitle',
     }
 });
 
-// 11. Removes a movie from user's favorites by username and movie title
-app.delete('/users/:username/:movieTitle', 
+// 11. Removes a movie from user's favorites by username and movie ID
+app.delete('/users/:username/:movieId', 
   [ param('username')
       .isString().withMessage('Username must be a string')
       .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
       .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
-    param('movieTitle')
-      .isString().withMessage('Movie title must be a string')
-      .isLength({ min: 2 }).withMessage('Movie title must be at least 2 characters long')
-      .isAlphanumeric().withMessage('Movie title must contain only letters and numbers and spaces') // Note: Adjust this validation if needed to allow special characters in movie titles
+    param('movieId')
+      .isMongoId().withMessage('Movie ID must be a valid MongoDB ObjectID')
   ],
   passport.authenticate('jwt', { session: false }), async (req, res) => {
     // Check the validation object for errors
@@ -416,9 +412,9 @@ app.delete('/users/:username/:movieTitle',
       return res.status(422).json({ errors: errors.array() });
     }
 
-    // Extract the username and movie title from the URL
-    const { username, movieTitle } = req.params;
-      
+    // Extract the username and movie ID from the URL
+    const { username, movieId } = req.params;
+
     // Validate that user updates own favorites by checking if the authenticated user's username matches the username in the URL
     if (req.user.username !== username) {
       return res.status(403).send('Permission denied: you can only update your own favorites list.');
@@ -426,14 +422,14 @@ app.delete('/users/:username/:movieTitle',
 
     try {
       // Find the movie document to get its _id
-      const movie = await Movie.findOne({ title: movieTitle }).select('_id');
+      const movie = await Movie.findById(movieId).select('_id');
       if (!movie) {
-        return res.status(404).send(`Movie ${movieTitle} not found.`);
+        return res.status(404).send(`Movie with ID ${movieId} not found.`);
       }
       // Use findOneAndUpdate with $pull to remove the movie from favorites
       const updatedUser = await User.findOneAndUpdate(
         { username: username },
-        { $pull: { favorites: movie._id } },
+        { $pull: { favorites: movieId } },
         { new: true } // { new: true } returns the updated document
       );
 
