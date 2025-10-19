@@ -177,7 +177,7 @@ app.post('/users',
       })
       .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
     check('email').isEmail().withMessage('Invalid email format'),
-    check('birth_date').isDate().withMessage('Invalid date format'),
+    check('birth_date').optional({ values: 'falsy' }).isDate().withMessage('Invalid date format'),
   ], 
   async (req,res) => {
 
