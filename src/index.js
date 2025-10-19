@@ -275,9 +275,6 @@ app.patch('/users/:username',
       return res.status(403).send('Permission denied: you can only update your own profile.');
     }
 
-    // Hash the new password
-    const hashedNewPassword = await User.hashPassword(newPassword);
-
     try {
         // Check if username already exists
         //const existingUser = await User.findOne({ username: newUsername });
@@ -288,7 +285,10 @@ app.patch('/users/:username',
         // Build the update object with only the properties that exist in the request body
         const updateFields = {};
         if (newUsername !== undefined) updateFields.username = newUsername;
-        if (newPassword !== undefined) updateFields.password = hashedNewPassword;
+        if (newPassword !== undefined) { 
+            const hashedNewPassword = await User.hashPassword(newPassword); // Hash the new password
+            updateFields.password = hashedNewPassword; 
+        }
         if (newEmail !== undefined) updateFields.email = newEmail;
         if (newBirthDate !== undefined) updateFields.birth_date = newBirthDate;
 
