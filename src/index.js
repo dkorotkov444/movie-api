@@ -206,13 +206,13 @@ app.post('/users',
       // Hash the password
       const hashedPassword = await User.hashPassword(password);
 
-      // Create and save the new user
+      // Create and save the new user. Favorites is set to default [] in the Mongoose database model.
       const createdUser = await User.create({
         username: username,
         password: hashedPassword, // Store the hashed password
         email: email,
-        birth_date: birth_date,
-        favorites: favorites || [] // Default to empty array if not provided
+        // If birth_date is "" (falsy), this property is omitted entirely, preventing the Mongoose date casting error.
+        ...(birth_date && { birth_date: birth_date }),
       });
 
       // Strip Mongoose properties and exclude password from the response
