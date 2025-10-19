@@ -279,35 +279,41 @@ app.patch('/users/:username',
     const hashedNewPassword = await User.hashPassword(newPassword);
 
     try {
-      // Build the update object with only the properties that exist in the request body
-      const updateFields = {};
-      if (newUsername !== undefined) updateFields.username = newUsername;
-      if (newPassword !== undefined) updateFields.password = hashedNewPassword;
-      if (newEmail !== undefined) updateFields.email = newEmail;
-      if (newBirthDate !== undefined) updateFields.birth_date = newBirthDate;
+        // Check if username already exists
+        const existingUser = await User.findOne({ username: newUsername });
+        if (existingUser) {
+            return res.status(409).send('Username already exists'); // Stop processing and return error
+        }
 
-      // Check if there are any fields to update
-      if (Object.keys(updateFields).length === 0) {
-        return res.status(400).send('No fields provided for update.');
-      }
-      // Use findOneAndUpdate to find and update the user document
-      const updatedUser = await User.findOneAndUpdate(
-        { username: username },
-        { $set: updateFields },
-        { new: true }
-      );
+        // Build the update object with only the properties that exist in the request body
+        const updateFields = {};
+        if (newUsername !== undefined) updateFields.username = newUsername;
+        if (newPassword !== undefined) updateFields.password = hashedNewPassword;
+        if (newEmail !== undefined) updateFields.email = newEmail;
+        if (newBirthDate !== undefined) updateFields.birth_date = newBirthDate;
 
-      if (!updatedUser) {
-        return res.status(404).send(`User ${username} not found`);
-      }
+        // Check if there are any fields to update
+        if (Object.keys(updateFields).length === 0) {
+            return res.status(400).send('No fields provided for update.');
+        }
+        // Use findOneAndUpdate to find and update the user document
+        const updatedUser = await User.findOneAndUpdate(
+            { username: username },
+            { $set: updateFields },
+            { new: true }
+        );
 
-      // Strip Mongoose properties and exclude password from the response
-      const { password, ...publicProfile } = updatedUser.toObject();
-      res.status(200).json(publicProfile);
+        if (!updatedUser) {
+            return res.status(404).send(`User ${username} not found`);
+        }
 
-    } catch (err) {
-      console.error(err);
-      res.status(500).send('Error: ' + err.message);
+        // Strip Mongoose properties and exclude password from the response
+        const { password, ...publicProfile } = updatedUser.toObject();
+        res.status(200).json(publicProfile);
+
+        } catch (err) {
+        console.error(err);
+        res.status(500).send('Error: ' + err.message);
     }
 });
 
