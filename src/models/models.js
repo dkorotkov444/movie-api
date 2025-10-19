@@ -20,7 +20,7 @@ const userSchema = new Schema({
     password: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     birth_date: { type: Date},
-    favorites: [{ type: Schema.Types.ObjectId, ref: 'Movie' }]
+    favorites: [{ type: Schema.Types.ObjectId, ref: 'Movie', default: [] }]
 });
 
 // Hash the password before saving a user
