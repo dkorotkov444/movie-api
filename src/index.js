@@ -280,10 +280,10 @@ app.patch('/users/:username',
 
     try {
         // Check if username already exists
-        const existingUser = await User.findOne({ username: newUsername });
-        if (existingUser) {
-            return res.status(409).send('Username already exists'); // Stop processing and return error
-        }
+        //const existingUser = await User.findOne({ username: newUsername });
+        //if (existingUser) {
+        //    return res.status(409).send('Username already exists'); // Stop processing and return error
+        //}
 
         // Build the update object with only the properties that exist in the request body
         const updateFields = {};
@@ -311,8 +311,15 @@ app.patch('/users/:username',
         const { password, ...publicProfile } = updatedUser.toObject();
         res.status(200).json(publicProfile);
 
-        } catch (err) {
-        console.error(err);
+    } catch (err) {
+        // Handle the Mongoose Duplicate Key Error (Code 11000)
+        // This happens when a user tries to update their username to one that already exists.
+        if (err.code === 11000 && err.keyValue && err.keyValue.username) {
+            // Return a 409 Conflict status with a clear, plain text error message
+            return res.status(409).send('Error: Username already exists. Please choose a different username.');
+        }
+        
+        // Fallback for all other server errors
         res.status(500).send('Error: ' + err.message);
     }
 });
