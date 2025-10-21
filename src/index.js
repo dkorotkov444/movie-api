@@ -34,7 +34,11 @@ const { ADMIN_USERNAME, DB_URI, LOCAL_PORT } = process.env; // Destructure envir
 
 // Define at which port runs the web server (1. Heroku PORT, 2. .env LOCAL_PORT, 3. default 8080)
 const myPort = process.env.PORT || LOCAL_PORT || 8080;
-// const allowedOrigins = [`http://localhost:${myPort}`]; // Define allowed origins for CORS
+const allowedOrigins = [                // Define allowed origins for CORS
+    `http://localhost:${myPort}`, 
+    'http://localhost:1234',
+    'https://reel-movies.netlify.app'
+]; 
 
 
 // --- CONNECT TO MongoDB DATABASE ---
@@ -58,24 +62,23 @@ const app = express();
 // const accessLogStream = fs.createWriteStream(path.join(__dirname, 'logs', 'access.log'), { flags: 'a' });
 
 // --- INVOKE MIDDLEWARE ---
-app.use(cors());                           // Enable CORS for all origins (for development purposes only; restrict in production)
-/*
+//app.use(cors());                           // Enable CORS for all origins (for development purposes only; restrict in production)
+
 // Security/External Access (CORS)
 app.use(cors({
   origin: (origin, callback) => {
     // Allows requests with no origin (like mobile apps or curl requests)
     if(!origin) return callback(null, true); 
-    
-    // Check if the requesting origin is in our allowed list
+    // Check if the requesting origin is in allowed list
     if(allowedOrigins.indexOf(origin) === -1){
       let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
       return callback(new Error(message), false); // Deny access
     }
-    
-    // Allow access
-    return callback(null, true); 
-  }}));
-*/
+        // Allow access
+    return callback(null, true);
+  }
+}));
+
 // app.use(morgan('common', {stream: accessLogStream}));  // Use Morgan logging in standard format (before express.static to log files return)
 app.use(morgan('common'));  // Use Morgan logging directly to stdout, which Heroku's Logplex captures
 app.use(express.json());  // Parse JSON
