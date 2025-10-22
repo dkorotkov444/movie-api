@@ -33,3 +33,4 @@ pids
 
 # Backup files
 data/backups/
+dump/

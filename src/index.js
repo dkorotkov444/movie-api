@@ -218,9 +218,9 @@ app.post('/users',
         ...(birth_date && { birth_date: birth_date }),
       });
 
-      // Strip Mongoose properties and exclude password from the response
-      const { password: _, ...publicProfile } = createdUser.toObject(); // Use throwaway variable to exclude password
-      res.status(201).json(publicProfile);  // Return the public profile without password
+  // Strip Mongoose properties and exclude sensitive fields from the response
+  const { password: _, tokenInvalidBefore: __, ...publicProfile } = createdUser.toObject();
+  res.status(201).json(publicProfile);  // Return the public profile without sensitive fields
 
     } catch (err) {
       // Catch all async errors
@@ -330,8 +330,8 @@ app.patch('/users/:username',
         return res.status(404).send(`User ${username} not found`);
     }
 
-    // Strip Mongoose properties and exclude password from the response
-    const { password, ...publicProfile } = updatedUser.toObject();
+  // Strip Mongoose properties and exclude sensitive fields from the response
+  const { password: _, tokenInvalidBefore: __, ...publicProfile } = updatedUser.toObject();
 
   // Sensitive updates (username/password) have already set tokenInvalidBefore.
   // We do NOT return a new JWT — client must re-login.
@@ -431,9 +431,9 @@ app.patch('/users/:username/:movieId',
       if (!updatedUser) {
         return res.status(404).send(`User ${username} not found.`);
       }
-      // Strip Mongoose properties and exclude password from the response
-      const { password, ...publicProfile } = updatedUser.toObject();
-      res.status(200).json(publicProfile);
+  // Strip Mongoose properties and exclude sensitive fields from the response
+  const { password: _, tokenInvalidBefore: __, ...publicProfile } = updatedUser.toObject();
+  res.status(200).json(publicProfile);
 
     } catch (err) {
       console.error(err);
@@ -482,9 +482,9 @@ app.delete('/users/:username/:movieId',
         return res.status(404).send(`User ${username} not found.`);
       }
 
-      // Strip Mongoose properties and exclude password from the response
-      const { password, ...publicProfile } = updatedUser.toObject();
-      res.status(200).json(publicProfile);
+  // Strip Mongoose properties and exclude sensitive fields from the response
+  const { password: _, tokenInvalidBefore: __, ...publicProfile } = updatedUser.toObject();
+  res.status(200).json(publicProfile);
 
     } catch (err) {
       console.error(err);
