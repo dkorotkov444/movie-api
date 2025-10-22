@@ -23,14 +23,17 @@ const jwtSecret = JWT_SECRET; // Secret key for JWT signing and verification fro
 
 // Function to generate a JWT for a user
 const generateJWT = (user) => {
-  return jwt.sign({ _id: user._id, username: user.username }, // Payload with only user ID and username is more secure
-    jwtSecret,              // Secret key for JWT signing
-    { 
-        subject: user.username,     // Subject set to username
-        expiresIn: '3h',            // Token expires in 3 hours
-        algorithm: 'HS256'          // Algorithm used for signing the token
-    });   
+    return jwt.sign({ _id: user._id, username: user.username }, // Payload with only user ID and username is more secure
+        jwtSecret,              // Secret key for JWT signing
+        { 
+                subject: user.username,     // Subject set to username
+                expiresIn: '3h',            // Token expires in 3 hours
+                algorithm: 'HS256'          // Algorithm used for signing the token
+        });   
 };
+
+// Export the token generator so other modules (e.g., update handlers) can issue fresh tokens
+export { generateJWT };
 
 // POST /login route handler
 

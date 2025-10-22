@@ -19,7 +19,7 @@ import { check, param, validationResult } from 'express-validator'; // Import ex
 // --- Local Modules (Must be imported/executed) ---
 import { User, Movie } from './models/models.js';  // Import User and Movie models
 import './config/passport.js';                     // Import passport strategies (runs passport.js) 
-import authRouter from './routes/auth.js';         // Imports Router function from auth.js
+import authRouter, { generateJWT } from './routes/auth.js';         // Imports Router function and generateJWT from auth.js
 
 
 // --- ENVIRONMENT CONFIGURATION ---
@@ -278,53 +278,80 @@ app.patch('/users/:username',
       return res.status(403).send('Permission denied: you can only update your own profile.');
     }
 
-    try {
-        // Check if username already exists
-        //const existingUser = await User.findOne({ username: newUsername });
-        //if (existingUser) {
-        //    return res.status(409).send('Username already exists'); // Stop processing and return error
-        //}
+  try {
+    // Reuse authenticated user document populated by Passport
+    const currentUser = req.user; // Mongoose document
 
-        // Build the update object with only the properties that exist in the request body
-        const updateFields = {};
-        if (newUsername !== undefined) updateFields.username = newUsername;
-        if (newPassword !== undefined) { 
-            const hashedNewPassword = await User.hashPassword(newPassword); // Hash the new password
-            updateFields.password = hashedNewPassword; 
+    // If user requests a new username, ensure it's not already taken by someone else
+    if (newUsername !== undefined && newUsername !== currentUser.username) {
+      const existingUser = await User.findOne({ username: newUsername });
+      if (existingUser && existingUser._id.toString() !== currentUser._id.toString()) {
+        return res.status(409).send('Username already exists'); // Stop processing and return error
+      }
+    }
+
+    // If user requests a new email, ensure it's not already taken by someone else
+    if (newEmail !== undefined && newEmail !== currentUser.email) {
+      const existingEmailUser = await User.findOne({ email: newEmail });
+      if (existingEmailUser && existingEmailUser._id.toString() !== currentUser._id.toString()) {
+        return res.status(409).send('Email already exists'); // Stop processing and return error
+      }
+    }
+
+    // Build the update object with only the properties that exist in the request body
+    const updateFields = {};
+    if (newUsername !== undefined) updateFields.username = newUsername;
+    if (newPassword !== undefined) { 
+      const hashedNewPassword = await User.hashPassword(newPassword); // Hash the new password
+      updateFields.password = hashedNewPassword; 
+    }
+    if (newEmail !== undefined) updateFields.email = newEmail;
+    if (newBirthDate !== undefined) updateFields.birth_date = newBirthDate;
+
+    // Check if there are any fields to update
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).send('No fields provided for update.');
+    }
+
+    // Update by _id (atomic and not affected by username changes)
+    const updatedUser = await User.findByIdAndUpdate(
+      currentUser._id,
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).send(`User ${username} not found`);
+    }
+
+    // Strip Mongoose properties and exclude password from the response
+    const { password, ...publicProfile } = updatedUser.toObject();
+
+    // If username or password changed, issue a fresh JWT and return it with the response
+    if (newUsername !== undefined || newPassword !== undefined) {
+        const token = generateJWT(updatedUser);
+        return res.status(200).json({ user: publicProfile, token });
+    }
+
+    res.status(200).json(publicProfile);
+
+  } catch (err) {
+        // Handle the Mongoose Duplicate Key Error (Code 11000) for username/email
+        if (err && err.code === 11000) {
+            const duplicateKey = err.keyValue ? Object.keys(err.keyValue)[0] : null;
+            if (duplicateKey === 'username') {
+                return res.status(409).send('Error: Username already exists. Please choose a different username.');
+            }
+            if (duplicateKey === 'email') {
+                return res.status(409).send('Error: Email already exists. Please use a different email address.');
+            }
+            // Generic duplicate key
+            return res.status(409).send('Error: Duplicate key error.');
         }
-        if (newEmail !== undefined) updateFields.email = newEmail;
-        if (newBirthDate !== undefined) updateFields.birth_date = newBirthDate;
 
-        // Check if there are any fields to update
-        if (Object.keys(updateFields).length === 0) {
-            return res.status(400).send('No fields provided for update.');
-        }
-        // Use findOneAndUpdate to find and update the user document
-        const updatedUser = await User.findOneAndUpdate(
-            { username: username },
-            { $set: updateFields },
-            { new: true }
-        );
-
-        if (!updatedUser) {
-            return res.status(404).send(`User ${username} not found`);
-        }
-
-        // Strip Mongoose properties and exclude password from the response
-        const { password, ...publicProfile } = updatedUser.toObject();
-        res.status(200).json(publicProfile);
-
-    } catch (err) {
-        // Handle the Mongoose Duplicate Key Error (Code 11000)
-        // This happens when a user tries to update their username to one that already exists.
-        if (err.code === 11000 && err.keyValue && err.keyValue.username) {
-            // Return a 409 Conflict status with a clear, plain text error message
-            return res.status(409).send('Error: Username already exists. Please choose a different username.');
-        }
-        
         // Fallback for all other server errors
         res.status(500).send('Error: ' + err.message);
-    }
+  }
 });
 
 // 9. Deregisters (deletes) user with provided username
