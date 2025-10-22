@@ -19,7 +19,7 @@ import { check, param, validationResult } from 'express-validator'; // Import ex
 // --- Local Modules (Must be imported/executed) ---
 import { User, Movie } from './models/models.js';  // Import User and Movie models
 import './config/passport.js';                     // Import passport strategies (runs passport.js) 
-import authRouter, { generateJWT } from './routes/auth.js';         // Imports Router function and generateJWT from auth.js
+import authRouter from './routes/auth.js';         // Imports Router function and generateJWT from auth.js
 
 
 // --- ENVIRONMENT CONFIGURATION ---
@@ -266,7 +266,7 @@ app.patch('/users/:username',
     // Check the validation object for errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
+        return res.status(422).json({ errors: errors.array() });
     } 
 
     // Extract the username from the URL and new user info from the request body
@@ -275,7 +275,7 @@ app.patch('/users/:username',
 
     // Validate that user updates own profile by checking if the authenticated user's username matches the username in the URL
     if (req.user.username !== username) {
-      return res.status(403).send('Permission denied: you can only update your own profile.');
+        return res.status(403).send('Permission denied: you can only update your own profile.');
     }
 
   try {
@@ -284,56 +284,58 @@ app.patch('/users/:username',
 
     // If user requests a new username, ensure it's not already taken by someone else
     if (newUsername !== undefined && newUsername !== currentUser.username) {
-      const existingUser = await User.findOne({ username: newUsername });
-      if (existingUser && existingUser._id.toString() !== currentUser._id.toString()) {
-        return res.status(409).send('Username already exists'); // Stop processing and return error
-      }
+        const existingUser = await User.findOne({ username: newUsername });
+        if (existingUser && existingUser._id.toString() !== currentUser._id.toString()) {
+            return res.status(409).send('Username already exists'); // Stop processing and return error
+        }
     }
 
     // If user requests a new email, ensure it's not already taken by someone else
     if (newEmail !== undefined && newEmail !== currentUser.email) {
-      const existingEmailUser = await User.findOne({ email: newEmail });
-      if (existingEmailUser && existingEmailUser._id.toString() !== currentUser._id.toString()) {
-        return res.status(409).send('Email already exists'); // Stop processing and return error
-      }
+        const existingEmailUser = await User.findOne({ email: newEmail });
+        if (existingEmailUser && existingEmailUser._id.toString() !== currentUser._id.toString()) {
+            return res.status(409).send('Email already exists'); // Stop processing and return error
+        }
     }
 
     // Build the update object with only the properties that exist in the request body
     const updateFields = {};
     if (newUsername !== undefined) updateFields.username = newUsername;
     if (newPassword !== undefined) { 
-      const hashedNewPassword = await User.hashPassword(newPassword); // Hash the new password
-      updateFields.password = hashedNewPassword; 
+        const hashedNewPassword = await User.hashPassword(newPassword); // Hash the new password
+        updateFields.password = hashedNewPassword; 
     }
     if (newEmail !== undefined) updateFields.email = newEmail;
     if (newBirthDate !== undefined) updateFields.birth_date = newBirthDate;
 
     // Check if there are any fields to update
     if (Object.keys(updateFields).length === 0) {
-      return res.status(400).send('No fields provided for update.');
+        return res.status(400).send('No fields provided for update.');
     }
 
     // Update by _id (atomic and not affected by username changes)
-    const updatedUser = await User.findByIdAndUpdate(
-      currentUser._id,
-      { $set: updateFields },
-      { new: true }
-    );
+  // If username or password changed, also set tokenInvalidBefore to now to revoke prior tokens
+  const shouldRevoke = (newUsername !== undefined || newPassword !== undefined);
+  const updateDoc = shouldRevoke
+    ? { $set: { ...updateFields, tokenInvalidBefore: new Date() } }
+    : { $set: updateFields };
+
+  const updatedUser = await User.findByIdAndUpdate(
+    currentUser._id,
+    updateDoc,
+    { new: true }
+  );
 
     if (!updatedUser) {
-      return res.status(404).send(`User ${username} not found`);
+        return res.status(404).send(`User ${username} not found`);
     }
 
     // Strip Mongoose properties and exclude password from the response
     const { password, ...publicProfile } = updatedUser.toObject();
 
-    // If username or password changed, issue a fresh JWT and return it with the response
-    if (newUsername !== undefined || newPassword !== undefined) {
-        const token = generateJWT(updatedUser);
-        return res.status(200).json({ user: publicProfile, token });
-    }
-
-    res.status(200).json(publicProfile);
+  // Sensitive updates (username/password) have already set tokenInvalidBefore.
+  // We do NOT return a new JWT — client must re-login.
+  return res.status(200).json(publicProfile);
 
   } catch (err) {
         // Handle the Mongoose Duplicate Key Error (Code 11000) for username/email

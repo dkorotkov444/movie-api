@@ -60,6 +60,16 @@ passport.use(new JWTStrategy(
                 return done(null, false, { message: 'Unauthorized' });
             }
 
+            // Reject tokens issued before the user's tokenInvalidBefore timestamp
+            // jwtPayload.iat is seconds since epoch; convert to ms for comparison with Date
+            if (user.tokenInvalidBefore) {
+                const tokenIatMs = (jwtPayload.iat || 0) * 1000;
+                const invalidBeforeMs = user.tokenInvalidBefore.getTime();
+                if (tokenIatMs <= invalidBeforeMs) {
+                    return done(null, false, { message: 'Token revoked' });
+                }
+            }
+
             // Authentication successful
             return done(null, user);
         } catch (error) {

@@ -108,6 +108,19 @@ Import `postman_collection.json` into Postman. The collection uses a variable `b
 - Movie title validation in some routes uses a conservative alphanumeric check — titles with punctuation may require relaxed validation.
 - Sample user/password pairs are present in `files/users.json` for test/dev purposes; do not use them in production.
 
+## Token revocation and profile updates
+
+- Tokens are standard JWTs signed with `JWT_SECRET` and contain `iat` and `exp` claims (expires in 3 hours).
+- When a user changes sensitive data (username or password) the server now revokes all previously issued tokens for that user by recording a `tokenInvalidBefore` timestamp in the user record.
+- Behavior for clients:
+	- `PATCH /users/:username` will NOT return a new token when username or password are changed. The client must re-login via `POST /login` to receive a fresh token.
+	- Non-sensitive updates (email, birth date, favorites) do not revoke tokens and behave as before.
+
+Implementation notes for maintainers:
+- A new field `tokenInvalidBefore` (Date) was added to the `User` schema (`src/models/models.js`). Default is epoch (no invalidation).
+- Passport's JWT strategy checks token `iat` against `user.tokenInvalidBefore` and rejects tokens issued earlier than that timestamp.
+- This approach is simple, persistent across server restarts, and does not require extra infrastructure like Redis.
+
 ## Scripts / tools
 
 - The `scripts/` folder contains maintenance and data-migration utilities (for example `migrate-favorites.js` and `users-cleanup.js`). Treat these as developer tools — run them locally when needed. They are not part of the production server runtime.

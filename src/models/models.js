@@ -20,6 +20,9 @@ const userSchema = new Schema({
     password: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     birth_date: { type: Date},
+    // Timestamp used to invalidate tokens issued before this moment.
+    // Default set to epoch so existing tokens remain valid until we explicitly update this field.
+    tokenInvalidBefore: { type: Date, default: new Date(0) },
     favorites: [{ type: Schema.Types.ObjectId, ref: 'Movie', default: [] }]
 });
 
