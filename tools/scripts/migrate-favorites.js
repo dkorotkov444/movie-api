@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 // Import your user and movie models
-import { User, Movie } from '../src/models/models.js';
+import { User, Movie } from '../../src/models/models.js';
 
 // Connection URI for your MongoDB database
 const MONGODB_URI = 'mongodb://localhost:27017/reelDB';
