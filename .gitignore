@@ -32,5 +32,4 @@ pids
 .history/
 
 # Backup files
-data/backups/
 dump/
