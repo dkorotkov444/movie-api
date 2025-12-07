@@ -87,11 +87,15 @@ Notes:
 
 - `src/index.js` — main Express server and route definitions
 - `src/routes/auth.js` — login route & JWT generation
-- `src/config/passport.js` — Passport local + JWT strategies
+- `src/config/passport.js` — Passport local + JWT strategies (includes JWT revocation via `tokenInvalidBefore`)
 - `src/models/models.js` — Mongoose schemas for `User` and `Movie`
-- `data/fixtures/` — small test fixtures / seed data (movies, users, starring lists)
-- `data/backups/` — full database backups (optional, large files)
-- `tools/` — developer utilities (data migration, cleanup)
+- `tools/data/` — fixture files (`movies.js`, `movies2.js`, etc.)
+- `tools/scripts/` — developer utilities for data migration, enrichment, and import:
+  - `import_movies.js` — import movies from fixture files into MongoDB
+  - `fetch_tmdb_posters.js` — fetch poster URLs from TMDb API
+  - `fetch_imdb_ratings.js` — fetch IMDb ratings via OMDb API or scraping
+  - `merge_posters.js` — merge poster URLs into fixture files
+  - Other scripts: `users-cleanup.js`, `migrate-favorites.js`, `update-image-url.js`
 
 ## Postman examples
 
@@ -123,14 +127,38 @@ Implementation notes for maintainers:
 
 ## Scripts / tools
 
-- The `scripts/` folder contains maintenance and data-migration utilities (for example `migrate-favorites.js` and `users-cleanup.js`). Treat these as developer tools — run them locally when needed. They are not part of the production server runtime.
+The `tools/scripts/` folder contains developer utilities for data enrichment and import. All scripts are ESM (Node.js 18+). Common usage:
+
+- **import_movies.js** — import movies from fixture files into MongoDB:
+  ```powershell
+  $env:MONGO_URI='mongodb+srv://admin:PASS@host/reelDB'; node tools/scripts/import_movies.js [--dry] [--upsert]
+  ```
+  - `--dry`: validate without writing
+  - `--upsert`: update existing movies (match by title + release_year)
+
+- **fetch_tmdb_posters.js** — fetch poster URLs from TMDb:
+  ```powershell
+  $env:TMDB_API_KEY='your_key'; node tools/scripts/fetch_tmdb_posters.js
+  ```
+  - Outputs JSON with poster URLs
+
+- **fetch_imdb_ratings.js** — fetch IMDb ratings via OMDb API:
+  ```powershell
+  $env:OMDB_API_KEY='your_key'; node tools/scripts/fetch_imdb_ratings.js [--dry] [--scrape]
+  ```
+  - `--dry`: preview without writing
+  - `--scrape`: use HTML scraping fallback (no API key needed, fragile)
+
+- **merge_posters.js** — merge poster URLs into fixture files by title + year
+
+- **users-cleanup.js**, **migrate-favorites.js** — user and favorites maintenance (run when needed)
 
 ## Data files (fixtures / backups)
 
-- The repository contains data files used as fixtures and backups. Suggested location is `data/fixtures/` for test fixtures (movies, starring lists, small `users.json` for testing) and `data/backups/` for full database exports/backups.
-- Should you push `data/` to GitHub? It depends:
-	- If the data contains no secrets and is small (test fixtures), keeping them in the repo is convenient for CI, tests, and onboarding. Use `data/fixtures/` for this.
-	- For full database backups or large exports (`reeldb.*.backup*.json`) you may prefer to keep them outside the repo or in a separate releases/storage bucket (they can bloat the repository). Put backups in `data/backups/` and consider adding them to `.gitignore` if you don't want them versioned.
+- Fixture files are located in `tools/data/` (e.g., `movies.js`, `movies2.js`).
+- The `movies.js` file contains canonical movie metadata (genres, director bios).
+- The `movies2.js` file is an enriched collection with 43+ movies including poster URLs and IMDb ratings.
+- Import these into MongoDB using `tools/scripts/import_movies.js`.
 
 ## Dependencies
 See `package.json` for the full list. Key libraries: `express`, `mongoose`, `passport`, `passport-jwt`, `passport-local`, `bcrypt`, `jsonwebtoken`, `express-validator`.
