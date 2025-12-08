@@ -1,8 +1,10 @@
-/*  responseHelper.js
-* Response sanitization helper for the REEL movie API
-* Uses ESM syntax
-* Copyright Dmitri Korotkov 2025
-*/
+/**
+ * @file src/utils/responseHelper.js
+ * @fileoverview Response sanitization helper for the REEL movie API
+ * @module utils/responseHelper
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 const SENSITIVE_FIELDS = ['password', 'tokenInvalidBefore'];
 

@@ -1,13 +1,19 @@
-/*  validators.js
-* Input validation rules for the REEL movie API
-* Uses ESM syntax
-* Copyright Dmitri Korotkov 2025
-*/
+/**
+ * @file src/middleware/validators.js
+ * @fileoverview Input validation rules for the REEL movie API
+ * @module middleware/validators
+ * @requires express-validator
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 // --- Third-Party Frameworks & Utilities ---
 import { check, param } from 'express-validator';
 
-// Validation rules for user registration
+/**
+ * Validation rules for user registration
+ * @type {Array}
+ */
 export const registerValidation = [
   check('username')
     .isString().withMessage('Username must be a string')
@@ -29,7 +35,10 @@ export const registerValidation = [
   check('birth_date').optional({ values: 'falsy' }).isDate().withMessage('Invalid date format'),
 ];
 
-// Validation rules for user update
+/**
+ * Validation rules for user update
+ * @type {Array}
+ */
 export const updateUserValidation = [
   check('newUsername')
     .optional()
@@ -53,7 +62,10 @@ export const updateUserValidation = [
     .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
 ];
 
-// Validation rules for user deletion
+/**
+ * Validation rules for user deletion
+ * @type {Array}
+ */
 export const deleteUserValidation = [
   param('username')
     .isString().withMessage('Username must be a string')
@@ -61,7 +73,10 @@ export const deleteUserValidation = [
     .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
 ];
 
-// Validation rules for favorite operations
+/**
+ * Validation rules for favorite operations
+ * @type {Array}
+ */
 export const favoriteValidation = [
   param('username')
     .isString().withMessage('Username must be a string')

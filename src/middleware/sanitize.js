@@ -1,9 +1,11 @@
-/*  sanitize.js
-* Response sanitization middleware for the REEL movie API
-* Removes sensitive fields before sending responses to clients
-* Uses ESM syntax
-* Copyright Dmitri Korotkov 2025
-*/
+/**
+ * @file src/middleware/sanitize.js
+ * @fileoverview Response sanitization middleware for the REEL movie API
+ * @description Removes sensitive fields before sending responses to clients
+ * @module middleware/sanitize
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 // Sensitive fields that should never be sent to clients
 const SENSITIVE_FIELDS = ['password', 'tokenInvalidBefore'];

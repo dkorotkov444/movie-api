@@ -1,9 +1,16 @@
 /**
-/*  index.js
-* Main JavaScript file of the REEL movie API
-* Uses ESM syntax
-* Copyright Dmitri Korotkov 2025
-*/
+ * @file src/index.js
+ * @fileoverview Main entry point for the REEL movie API
+ * @module index
+ * @requires dotenv
+ * @requires express
+ * @requires morgan
+ * @requires mongoose
+ * @requires passport
+ * @requires cors
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 // --- IMPORTS ---
 // --- Core Node.js Modules ---

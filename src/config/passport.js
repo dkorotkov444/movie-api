@@ -1,7 +1,15 @@
-/*  passport.js
-* JavaScript file with passport library configuration for authentication
-* Uses ESM syntax
-*/
+/**
+ * @file src/config/passport.js
+ * @fileoverview Passport library configuration for authentication
+ * @module config/passport
+ * @requires dotenv
+ * @requires passport
+ * @requires passport-local
+ * @requires passport-jwt
+ * @requires models/models
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 // --- IMPORTS ---
 // --- Core Node.js Modules ---

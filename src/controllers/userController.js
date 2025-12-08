@@ -1,8 +1,12 @@
-/*  userController.js
-* User business logic for the REEL movie API
-* Uses ESM syntax
-* Copyright Dmitri Korotkov 2025
-*/
+/**
+ * @file src/controllers/userController.js
+ * @fileoverview User business logic for the REEL movie API
+ * @module controllers/userController
+ * @requires express-validator
+ * @requires models/models
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 // --- Third-Party Frameworks & Utilities ---
 import { validationResult } from 'express-validator';
@@ -11,7 +15,7 @@ import { User, Movie } from '../models/models.js';
 
 // ESSENTIAL FEATURES
 
-// 6. Returns a list of all users
+// 1. Returns a list of all users
 export const getUsers = async (req, res) => {
   try {
     const users = await User.find();
@@ -21,7 +25,7 @@ export const getUsers = async (req, res) => {
   }
 };
 
-// 7. Registers new user
+// 2. Registers new user
 export const registerUser = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -60,7 +64,7 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// 8. Updates existing user info (username, password, email, date of birth)
+// 3. Updates existing user info (username, password, email, date of birth)
 export const updateUser = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -129,7 +133,7 @@ export const updateUser = async (req, res) => {
   }
 };
 
-// 9. Deregisters (deletes) user with provided username
+// 4. Deregisters (deletes) user with provided username
 export const deleteUser = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -152,7 +156,7 @@ export const deleteUser = async (req, res) => {
 
 // OPTIONAL FEATURES
 
-// 10. Adds a movie to a user's favorites by username and movie ID
+// 5. Adds a movie to a user's favorites by username and movie ID
 export const addFavorite = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -185,7 +189,7 @@ export const addFavorite = async (req, res) => {
   }
 };
 
-// 11. Removes a movie from user's favorites by username and movie ID
+// 6. Removes a movie from user's favorites by username and movie ID
 export const removeFavorite = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

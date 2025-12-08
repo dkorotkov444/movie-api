@@ -1,8 +1,15 @@
-/*  users.js
-* User routes for the REEL movie API
-* Uses ESM syntax
-* Copyright Dmitri Korotkov 2025
-*/
+/**
+ * @file src/routes/users.js
+ * @fileoverview User routes for the REEL movie API
+ * @module routes/users
+ * @requires express
+ * @requires express-validator
+ * @requires controllers/userController
+ * @requires middleware/validators
+ * @requires middleware/auth
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 // --- Third-Party Frameworks & Utilities ---
 import { Router } from 'express';
@@ -22,13 +29,13 @@ const router = Router();
 
 // ESSENTIAL FEATURES
 
-// 6. Returns a list of all users
+// 1. Returns a list of all users
 router.get('/users', authenticateJWT, requireAdmin, userController.getUsers);
 
-// 7. Registers new user
+// 2. Registers new user
 router.post('/users', registerValidation, userController.registerUser);
 
-// 8. Updates existing user info (username, password, email, date of birth)
+// 3. Updates existing user info (username, password, email, date of birth)
 router.patch(
   '/users/:username',
   updateUserValidation,
@@ -37,7 +44,7 @@ router.patch(
   userController.updateUser
 );
 
-// 9. Deregisters (deletes) user with provided username
+// 4. Deregisters (deletes) user with provided username
 router.delete(
   '/users/:username',
   deleteUserValidation,
@@ -46,7 +53,9 @@ router.delete(
   userController.deleteUser
 );
 
-// 10. Adds a movie to a user's favorites by username and movie ID
+// OPTIONAL FEATURES
+
+// 5. Adds a movie to a user's favorites by username and movie ID
 router.patch(
   '/users/:username/:movieId',
   favoriteValidation,
@@ -55,7 +64,7 @@ router.patch(
   userController.addFavorite
 );
 
-// 11. Removes a movie from user's favorites by username and movie ID
+// 6. Removes a movie from user's favorites by username and movie ID
 router.delete(
   '/users/:username/:movieId',
   favoriteValidation,

@@ -1,8 +1,13 @@
-﻿/*  movieController.js
-* Movie business logic for the REEL movie API
-* Uses ESM syntax
-* Copyright Dmitri Korotkov 2025
-*/
+﻿/**
+ * @file src/controllers/movieController.js
+ * @fileoverview Movie business logic for the REEL movie API
+ * @module controllers/movieController
+ * @requires models/models
+ * @requires utils/dbHelper
+ * @requires utils/responseHelper
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 // --- Local Modules (Must be imported/executed) ---
 import { Movie } from '../models/models.js';
@@ -78,7 +83,7 @@ export const getDirectorByName = async (req, res) => {
 
 // OPTIONAL FEATURES
 
-// 12. Returns the list of actors starring in the movie
+// 6. Returns the list of actors starring in the movie
 export const getMovieStarring = async (req, res) => {
   const { title } = req.params;
   try {

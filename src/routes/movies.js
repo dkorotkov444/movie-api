@@ -1,8 +1,13 @@
-/*  movies.js
-* Movie routes for the REEL movie API
-* Uses ESM syntax
-* Copyright Dmitri Korotkov 2025
-*/
+/**
+ * @file src/routes/movies.js
+ * @fileoverview Movie routes for the REEL movie API
+ * @module routes/movies
+ * @requires express
+ * @requires controllers/movieController
+ * @requires middleware/auth
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 // --- Third-Party Frameworks & Utilities ---
 import { Router } from 'express';
@@ -31,7 +36,7 @@ router.get('/movies/directors/:directorName', authenticateJWT, movieController.g
 
 // OPTIONAL FEATURES
 
-// 12. Returns the list of actors starring in the movie
+// 6. Returns the list of actors starring in the movie
 router.get('/movies/:title/starring', authenticateJWT, movieController.getMovieStarring);
 
 export default router;

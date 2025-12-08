@@ -1,8 +1,11 @@
-/*  dbHelper.js
-* Database query helpers for the REEL movie API
-* Uses ESM syntax
-* Copyright Dmitri Korotkov 2025
-*/
+/**
+ * @file src/utils/dbHelper.js
+ * @fileoverview Database query helpers for the REEL movie API
+ * @module utils/dbHelper
+ * @requires models/models
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 import { Movie } from '../models/models.js';
 

@@ -1,7 +1,15 @@
-/*  auth.js
-* JavaScript file for user authentication
-* Uses ESM syntax
-*/
+/**
+ * @file src/routes/auth.js
+ * @fileoverview User authentication routes for the REEL movie API
+ * @module routes/auth
+ * @requires dotenv
+ * @requires express
+ * @requires jsonwebtoken
+ * @requires passport
+ * @requires config/passport
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 // --- IMPORTS ---
 // --- Core Node.js Modules ---
@@ -21,7 +29,11 @@ const { JWT_SECRET } = process.env; // Destructure environment variables
 const authRouter = Router();  // Create a new router instance
 const jwtSecret = JWT_SECRET; // Secret key for JWT signing and verification from JWTStrategy in passport.js. NO HARDCODED SECRETS!
 
-// Function to generate a JWT for a user
+/**
+ * Function to generate a JWT for a user
+ * @param {Object} user - User object
+ * @returns {string} JWT token
+ */
 const generateJWT = (user) => {
     return jwt.sign({ _id: user._id, username: user.username }, // Payload with only user ID and username is more secure
         jwtSecret,              // Secret key for JWT signing

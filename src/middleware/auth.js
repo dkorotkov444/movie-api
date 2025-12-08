@@ -1,16 +1,28 @@
-/*  auth.js
-* Authentication and authorization middleware for the REEL movie API
-* Uses ESM syntax
-* Copyright Dmitri Korotkov 2025
-*/
+/**
+ * @file src/middleware/auth.js
+ * @fileoverview Authentication and authorization middleware for the REEL movie API
+ * @module middleware/auth
+ * @requires passport
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 // --- Third-Party Frameworks & Utilities ---
 import passport from 'passport';
 
-// Middleware to authenticate JWT token
+/**
+ * Middleware to authenticate JWT token
+ * @type {Function}
+ */
 export const authenticateJWT = passport.authenticate('jwt', { session: false });
 
-// Middleware to check if user is admin
+/**
+ * Middleware to check if user is admin
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {void}
+ */
 export const requireAdmin = (req, res, next) => {
   const { ADMIN_USERNAME } = process.env;
   
@@ -21,7 +33,13 @@ export const requireAdmin = (req, res, next) => {
   next();
 };
 
-// Middleware to check if user is accessing their own profile
+/**
+ * Middleware to check if user is accessing their own profile or is admin
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {void}
+ */
 export const requireOwnerOrAdmin = (req, res, next) => {
   const { ADMIN_USERNAME } = process.env;
   const { username } = req.params;
@@ -33,7 +51,13 @@ export const requireOwnerOrAdmin = (req, res, next) => {
   next();
 };
 
-// Middleware to check if user can modify their own favorites
+/**
+ * Middleware to check if user can modify their own favorites
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {void}
+ */
 export const requireFavoriteOwner = (req, res, next) => {
   const { username } = req.params;
 
