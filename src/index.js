@@ -1,6 +1,8 @@
+/**
 /*  index.js
 * Main JavaScript file of the REEL movie API
 * Uses ESM syntax
+* Copyright Dmitri Korotkov 2025
 */
 
 // --- IMPORTS ---
@@ -15,11 +17,11 @@ import morgan from 'morgan';                // Import Morgan logging library
 import mongoose from 'mongoose';            // Import Mongoose ODM
 import passport from 'passport';            // Import passport authentication module
 import cors from 'cors';                    // Import CORS to manage cross-origin requests
-import { check, param, validationResult } from 'express-validator'; // Import express-validator for input validation
 // --- Local Modules (Must be imported/executed) ---
-import { User, Movie } from './models/models.js';  // Import User and Movie models
-import './config/passport.js';                     // Import passport strategies (runs passport.js) 
-import authRouter from './routes/auth.js';         // Imports Router function and generateJWT from auth.js
+import './config/passport.js';                     // Import passport strategies (runs passport.js)
+import authRouter from './routes/auth.js';         // Import auth router (login endpoint + JWT generation)
+import movieRoutes from './routes/movies.js';      // Import movie routes (movie queries)
+import userRoutes from './routes/users.js';        // Import user routes (registration, profile, favorites)
 
 
 // --- ENVIRONMENT CONFIGURATION ---
@@ -62,7 +64,6 @@ const app = express();
 // const accessLogStream = fs.createWriteStream(path.join(__dirname, 'logs', 'access.log'), { flags: 'a' });
 
 // --- INVOKE MIDDLEWARE ---
-//app.use(cors());                           // Enable CORS for all origins (for development purposes only; restrict in production)
 
 // Security/External Access (CORS)
 app.use(cors({
@@ -71,7 +72,7 @@ app.use(cors({
     if(!origin) return callback(null, true); 
     // Check if the requesting origin is in allowed list
     if(allowedOrigins.indexOf(origin) === -1){
-      let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
+      let message = 'The CORS policy for this application does not allow access from origin ' + origin;
       return callback(new Error(message), false); // Deny access
     }
         // Allow access
@@ -83,7 +84,9 @@ app.use(cors({
 app.use(morgan('common'));  // Use Morgan logging directly to stdout, which Heroku's Logplex captures
 app.use(express.json());  // Parse JSON
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies (as sent by HTML forms)
-app.use ('/', authRouter);  // Use the auth.js file for all requests to root URL (login)
+app.use('/', authRouter);  // Use the auth.js file for all requests to root URL (login)
+app.use('/', movieRoutes);
+app.use('/', userRoutes);
 
 
 // --- API ENDPOINTS ---
@@ -92,426 +95,6 @@ app.use ('/', authRouter);  // Use the auth.js file for all requests to root URL
 app.get('/', (req,res) => {
   res.send(`User detected in the root at the port ${myPort}`);
 });
-
-// ESSENTIAL FEATURES
-
-// 1. Returns the list of all movies (titles only)
-app.get('/movies/list', passport.authenticate('jwt', { session: false }), async(req,res) => {
-  await Movie.find()
-    .then(movies => res.status(200).json(movies.map(movie => movie.title)))
-    .catch(err => res.status(500).send('Error: ' + err));
-});
-
-// 2. Returns complete information about all movies
-app.get('/movies', passport.authenticate('jwt', { session: false }), async(req,res) => {
-  await Movie.find()
-    .then(movies => res.status(200).json(movies))
-    .catch(err => res.status(500).send('Error: ' + err));
-});
-
-// 3. Returns data (description, genre, director, image URL, etc.) about a single movie by title
-app.get('/movies/:title', passport.authenticate('jwt', { session: false }), async(req,res) => {
-  const { title } = req.params;
-  await Movie.findOne({ title: title })
-    .then(movie => {
-      if (movie) {
-        res.status(200).json(movie)
-      } else {
-        res.status(400).send(`Movie ${title} not found`)
-      }
-    })
-    .catch(err => res.status(500).send('Error: ' + err));
-});
-
-// 4. Returns data about a genre (description) by name (e.g., “Thriller”) 
-app.get('/movies/genres/:genreName', passport.authenticate('jwt', { session: false }), async (req,res) => {
-  const { genreName } = req.params;
-  await Movie.findOne({ 'genre.name': genreName })
-    .then(movie => {
-      if (movie) {
-        res.status(200).json(movie.genre);
-      } else {
-        res.status(400).send(`Genre ${genreName} not found`);
-      }
-    })
-    .catch(err => res.status(500).send('Error: ' + err));
-});
-
-// 5. Returns data about a director (name, bio, birth year, death year) by name
-app.get('/movies/directors/:directorName', passport.authenticate('jwt', { session: false }), async (req,res) => {
-  const { directorName } = req.params;
-  await Movie.findOne({ 'director.name': directorName })
-    .then(movie => {
-      if (movie) {
-        res.status(200).json(movie.director);
-      } else {
-        res.status(400).send(`Director ${directorName} not found`);
-      }
-    })
-    .catch(err => res.status(500).send('Error: ' + err));
-});
-
-// 6. Returns a list of all users
-app.get('/users', passport.authenticate('jwt', { session: false }), async (req,res) => {
-
-  // Validate that only "admin" user can access the list of users
-  if (req.user.username !== ADMIN_USERNAME) {
-    return res.status(403).send('Permission denied: only admin can access this resource.');
-  }
-
-  await User.find()
-    .then(users => res.status(200).json(users))
-    .catch(err => res.status(500).send('Error: ' + err));
-});
-
-// 7. Registers new user
-app.post('/users', 
-  [ check('username')
-      .isString().withMessage('Username must be a string')
-      .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
-      .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
-    check('password')
-      .not().isEmpty().withMessage('Password is required')
-      .isString().withMessage('Password must be a string')
-      .custom(value => {
-        if (typeof value !== 'string') return false;
-        if (value.includes(' ')) throw new Error('Password must not contain spaces');
-        return true;
-      })
-      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
-    check('email').isEmail().withMessage('Invalid email format'),
-    check('birth_date').optional({ values: 'falsy' }).isDate().withMessage('Invalid date format'),
-  ], 
-  async (req,res) => {
-
-    // Check the validation object for errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-
-    // Extract the user info from the JSON request body
-    const newUser = req.body;
-    const { username, password, email, birth_date, favorites } = newUser;
-    
-    // Check if required fields are provided
-    if (!newUser || !username || !password || !email) {
-      return res.status(400).send('Missing required fields (username, password, email) in request body');
-    }
-
-    try {
-      // Check if username already exists
-      const existingUser = await User.findOne({ username: username });
-      if (existingUser) {
-        return res.status(409).send('Username already exists'); // Stop processing and return error
-      }
-
-      // Hash the password
-      const hashedPassword = await User.hashPassword(password);
-
-      // Create and save the new user. Favorites is set to default [] in the Mongoose database model.
-      const createdUser = await User.create({
-        username: username,
-        password: hashedPassword, // Store the hashed password
-        email: email,
-        // If birth_date is "" (falsy), this property is omitted entirely, preventing the Mongoose date casting error.
-        ...(birth_date && { birth_date: birth_date }),
-      });
-
-  // Strip Mongoose properties and exclude sensitive fields from the response
-  const { password: _, tokenInvalidBefore: __, ...publicProfile } = createdUser.toObject();
-  res.status(201).json(publicProfile);  // Return the public profile without sensitive fields
-
-    } catch (err) {
-      // Catch all async errors
-      console.error(err);
-      // Handle Mongoose unique index violation error (e.g., if email already exists)
-      if (err.code === 11000) {
-          return res.status(409).send('Username or email already exists.');
-      }
-      // Catch all other server/databaseerrors (including potential hashing errors)
-      res.status(500).send('Error: ' + err.message);
-    }
-});
-
-// 8. Updates existing user info (username, password, email, date of birth)
-app.patch('/users/:username', 
-  [ check('newUsername')
-      .optional()
-      .isString().withMessage('Username must be a string')
-      .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
-      .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
-    check('newPassword')
-      .optional()
-      .isString().withMessage('Password must be a string')
-      .custom(value => {
-        if (typeof value !== 'string') return false;
-        if (value.includes(' ')) throw new Error('Password must not contain spaces');
-        return true;
-      })
-      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
-    check('newEmail')
-      .optional()
-      .isEmail().withMessage('Invalid email format'),
-    check('newBirthDate')
-      .optional()
-      .isDate().withMessage('Invalid date format'),
-    param('username')
-      .isString().withMessage('Username must be a string')
-      .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
-      .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
-  ],
-  passport.authenticate('jwt', { session: false }), async (req, res) => {
-
-    // Check the validation object for errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-    } 
-
-    // Extract the username from the URL and new user info from the request body
-    const { username } = req.params;
-    const { newUsername, newPassword, newEmail, newBirthDate } = req.body;
-
-    // Validate that user updates own profile by checking if the authenticated user's username matches the username in the URL
-    if (req.user.username !== username) {
-        return res.status(403).send('Permission denied: you can only update your own profile.');
-    }
-
-  try {
-    // Reuse authenticated user document populated by Passport
-    const currentUser = req.user; // Mongoose document
-
-    // If user requests a new username, ensure it's not already taken by someone else
-    if (newUsername !== undefined && newUsername !== currentUser.username) {
-        const existingUser = await User.findOne({ username: newUsername });
-        if (existingUser && existingUser._id.toString() !== currentUser._id.toString()) {
-            return res.status(409).send('Username already exists'); // Stop processing and return error
-        }
-    }
-
-    // If user requests a new email, ensure it's not already taken by someone else
-    if (newEmail !== undefined && newEmail !== currentUser.email) {
-        const existingEmailUser = await User.findOne({ email: newEmail });
-        if (existingEmailUser && existingEmailUser._id.toString() !== currentUser._id.toString()) {
-            return res.status(409).send('Email already exists'); // Stop processing and return error
-        }
-    }
-
-    // Build the update object with only the properties that exist in the request body
-    const updateFields = {};
-    if (newUsername !== undefined) updateFields.username = newUsername;
-    if (newPassword !== undefined) { 
-        const hashedNewPassword = await User.hashPassword(newPassword); // Hash the new password
-        updateFields.password = hashedNewPassword; 
-    }
-    if (newEmail !== undefined) updateFields.email = newEmail;
-    if (newBirthDate !== undefined) updateFields.birth_date = newBirthDate;
-
-    // Check if there are any fields to update
-    if (Object.keys(updateFields).length === 0) {
-        return res.status(400).send('No fields provided for update.');
-    }
-
-    // Update by _id (atomic and not affected by username changes)
-  // If username or password changed, also set tokenInvalidBefore to now to revoke prior tokens
-  const shouldRevoke = (newUsername !== undefined || newPassword !== undefined);
-  const updateDoc = shouldRevoke
-    ? { $set: { ...updateFields, tokenInvalidBefore: new Date() } }
-    : { $set: updateFields };
-
-  const updatedUser = await User.findByIdAndUpdate(
-    currentUser._id,
-    updateDoc,
-    { new: true }
-  );
-
-    if (!updatedUser) {
-        return res.status(404).send(`User ${username} not found`);
-    }
-
-  // Strip Mongoose properties and exclude sensitive fields from the response
-  const { password: _, tokenInvalidBefore: __, ...publicProfile } = updatedUser.toObject();
-
-  // Sensitive updates (username/password) have already set tokenInvalidBefore.
-  // We do NOT return a new JWT — client must re-login.
-  return res.status(200).json(publicProfile);
-
-  } catch (err) {
-        // Handle the Mongoose Duplicate Key Error (Code 11000) for username/email
-        if (err && err.code === 11000) {
-            const duplicateKey = err.keyValue ? Object.keys(err.keyValue)[0] : null;
-            if (duplicateKey === 'username') {
-                return res.status(409).send('Error: Username already exists. Please choose a different username.');
-            }
-            if (duplicateKey === 'email') {
-                return res.status(409).send('Error: Email already exists. Please use a different email address.');
-            }
-            // Generic duplicate key
-            return res.status(409).send('Error: Duplicate key error.');
-        }
-
-        // Fallback for all other server errors
-        res.status(500).send('Error: ' + err.message);
-  }
-});
-
-// 9. Deregisters (deletes) user with provided username
-app.delete('/users/:username', 
-  [ param('username')
-      .isString().withMessage('Username must be a string')
-      .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
-      .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
-  ],
-  passport.authenticate('jwt', { session: false }), async (req,res) => {
-
-    // Check the validation object for errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-
-    // Extract the username from the URL
-    const {username} = req.params;
-    
-    // Validate that user deletes own profile by checking if the authenticated user's username matches the username in the URL
-    if (req.user.username !== username) {
-      return res.status(403).send('Permission denied: you can only delete your own profile.');
-    }
-
-    await User.findOneAndDelete({ username: username })
-      .then(user => {
-        if (user) {
-          res.status(200).send(`User ${username} was deregistered`);
-        } else {
-          res.status(404).send(`User ${username} not found`);
-        }
-      })
-      .catch(err => res.status(500).send('Error: ' + err));
-});
-
-// 10. Adds a movie to a user's favorites by username and movie ID
-app.patch('/users/:username/:movieId', 
-  [ param('username')
-      .isString().withMessage('Username must be a string')
-      .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
-      .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
-    param('movieId')
-      .isMongoId().withMessage('Movie ID must be a valid MongoDB ObjectID')
-  ],
-  passport.authenticate('jwt', { session: false }), async (req, res) => {
-
-    // Check the validation object for errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-
-    // Extract the username and movie ID from the URL
-    const { username, movieId } = req.params;
-    
-    // Validate that user updates own favorites by checking if the authenticated user's username matches the username in the URL
-    if (req.user.username !== username) {
-      return res.status(403).send('Permission denied: you can only update your own favorites list.');
-    }
-
-    try {
-      // Find the movie document to get its _id
-      const movie = await Movie.findById(movieId);
-      if (!movie) {
-        return res.status(404).send(`Movie with ID ${movieId} not found.`);
-      }
-      // Use findOneAndUpdate with $addToSet to add the movie to favorites
-      const updatedUser = await User.findOneAndUpdate(
-        { username: username },
-        { $addToSet: { favorites: movieId } },
-        { new: true } // { new: true } returns the updated document
-      );
-
-      if (!updatedUser) {
-        return res.status(404).send(`User ${username} not found.`);
-      }
-  // Strip Mongoose properties and exclude sensitive fields from the response
-  const { password: _, tokenInvalidBefore: __, ...publicProfile } = updatedUser.toObject();
-  res.status(200).json(publicProfile);
-
-    } catch (err) {
-      console.error(err);
-      res.status(500).send('Error: ' + err.message);
-    }
-});
-
-// 11. Removes a movie from user's favorites by username and movie ID
-app.delete('/users/:username/:movieId', 
-  [ param('username')
-      .isString().withMessage('Username must be a string')
-      .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
-      .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
-    param('movieId')
-      .isMongoId().withMessage('Movie ID must be a valid MongoDB ObjectID')
-  ],
-  passport.authenticate('jwt', { session: false }), async (req, res) => {
-    // Check the validation object for errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-
-    // Extract the username and movie ID from the URL
-    const { username, movieId } = req.params;
-
-    // Validate that user updates own favorites by checking if the authenticated user's username matches the username in the URL
-    if (req.user.username !== username) {
-      return res.status(403).send('Permission denied: you can only update your own favorites list.');
-    }
-
-    try {
-      // Find the movie document to get its _id
-      const movie = await Movie.findById(movieId).select('_id');
-      if (!movie) {
-        return res.status(404).send(`Movie with ID ${movieId} not found.`);
-      }
-      // Use findOneAndUpdate with $pull to remove the movie from favorites
-      const updatedUser = await User.findOneAndUpdate(
-        { username: username },
-        { $pull: { favorites: movieId } },
-        { new: true } // { new: true } returns the updated document
-      );
-
-      if (!updatedUser) {
-        return res.status(404).send(`User ${username} not found.`);
-      }
-
-  // Strip Mongoose properties and exclude sensitive fields from the response
-  const { password: _, tokenInvalidBefore: __, ...publicProfile } = updatedUser.toObject();
-  res.status(200).json(publicProfile);
-
-    } catch (err) {
-      console.error(err);
-      res.status(500).send('Error: ' + err.message);
-    }
-});
-
-// OPTIONAL FEATURES
-
-// 12. Returns the list of actors starring in the movie
-app.get('/movies/:title/starring', passport.authenticate('jwt', { session: false }), async (req,res) => {
-  const { title } = req.params;
-  await Movie.findOne({ title: title })
-    .then(movie => {
-      if (movie) {
-        res.status(200).json(movie.starring);
-      } else {
-        res.status(400).send(`Movie ${title} not found`);
-      }
-    })
-    .catch(err => res.status(500).send('Error: ' + err));
-});
-
-/*/ Returns information about actor  --- ENDPOINT TESTED, NO LOGIC YET
-//app.get('/movies/actors/:actorName', (req,res) => {
-//  res.send('Sucessful GET request returning info about actor');    
-//});*/
 
 // Catch and process any remaining errors
 app.use((error, req, res, next) => {
