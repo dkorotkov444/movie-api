@@ -13,9 +13,12 @@ import { User, Movie } from '../models/models.js';
 
 // 6. Returns a list of all users
 export const getUsers = async (req, res) => {
-  await User.find()
-    .then((users) => res.status(200).json(users))
-    .catch((err) => res.status(500).send('Error: ' + err));
+  try {
+    const users = await User.find();
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).send('Error: ' + err);
+  }
 };
 
 // 7. Registers new user
@@ -135,15 +138,16 @@ export const deleteUser = async (req, res) => {
 
   const { username } = req.params;
 
-  await User.findOneAndDelete({ username: username })
-    .then((user) => {
-      if (user) {
-        res.status(200).send(`User ${username} was deregistered`);
-      } else {
-        res.status(404).send(`User ${username} not found`);
-      }
-    })
-    .catch((err) => res.status(500).send('Error: ' + err));
+  try {
+    const user = await User.findOneAndDelete({ username: username });
+    if (user) {
+      res.status(200).send(`User ${username} was deregistered`);
+    } else {
+      res.status(404).send(`User ${username} not found`);
+    }
+  } catch (err) {
+    res.status(500).send('Error: ' + err);
+  }
 };
 
 // OPTIONAL FEATURES

@@ -17,7 +17,6 @@ import {
 } from '../middleware/validators.js';
 import { authenticateJWT, requireAdmin, requireOwnerOrAdmin, requireFavoriteOwner } from '../middleware/auth.js';
 
-const { ADMIN_USERNAME } = process.env;
 
 const router = Router();
 

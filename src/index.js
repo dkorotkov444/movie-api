@@ -22,6 +22,8 @@ import './config/passport.js';                     // Import passport strategies
 import authRouter from './routes/auth.js';         // Import auth router (login endpoint + JWT generation)
 import movieRoutes from './routes/movies.js';      // Import movie routes (movie queries)
 import userRoutes from './routes/users.js';        // Import user routes (registration, profile, favorites)
+import { sanitizeResponseMiddleware } from './middleware/sanitize.js';
+import { handleDuplicateKeyError, handleValidationError, globalErrorHandler } from './middleware/errorHandler.js';
 
 
 // --- ENVIRONMENT CONFIGURATION ---
@@ -84,6 +86,10 @@ app.use(cors({
 app.use(morgan('common'));  // Use Morgan logging directly to stdout, which Heroku's Logplex captures
 app.use(express.json());  // Parse JSON
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies (as sent by HTML forms)
+
+// Sanitize responses before sending to client
+app.use(sanitizeResponseMiddleware);
+
 app.use('/', authRouter);  // Use the auth.js file for all requests to root URL (login)
 app.use('/', movieRoutes);
 app.use('/', userRoutes);
@@ -96,9 +102,9 @@ app.get('/', (req,res) => {
   res.send(`User detected in the root at the port ${myPort}`);
 });
 
-// Catch and process any remaining errors
-app.use((error, req, res, next) => {
-    console.error(error.stack);
-    res.status(500).send('Application error');
-});
+
+// Error handling middleware (order matters)
+app.use(handleDuplicateKeyError);
+app.use(handleValidationError);
+app.use(globalErrorHandler);
 
