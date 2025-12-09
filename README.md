@@ -41,10 +41,20 @@ node index.js
 The server connects to MongoDB first; if the connection fails the process exits.
 
 ## Important environment variables
-- `DB_URI` – MongoDB connection string used by Mongoose.
-- `JWT_SECRET` – secret used to sign/verify JWT tokens (must be kept secret).
-- `ADMIN_USERNAME` – username allowed to call the admin-only `GET /users` endpoint.
-- `LOCAL_PORT` – optional local port (defaults to 8080).
+- `DB_URI` – MongoDB connection string used by Mongoose (required).
+- `JWT_SECRET` – secret used to sign/verify JWT tokens, must be kept secret (required).
+- `ADMIN_USERNAME` – username allowed to call the admin-only `GET /users` endpoint (required).
+- `LOCAL_PORT` – local port for development (required); Heroku uses `PORT` env var instead.
+- `ALLOWED_ORIGINS` – comma-separated list of frontend URLs allowed by CORS (required, e.g., `http://localhost:3000,https://example.com`).
+
+Example `.env` for local development:
+```text
+DB_URI=mongodb://localhost:27017/reelDB
+JWT_SECRET=your_jwt_secret_here_keep_it_safe
+ADMIN_USERNAME=admin
+LOCAL_PORT=8080
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:1234
+```
 
 ## Authentication
 
@@ -85,17 +95,57 @@ Notes:
 
 ## Project structure (high level)
 
-- `src/index.js` — main Express server and route definitions
-- `src/routes/auth.js` — login route & JWT generation
-- `src/config/passport.js` — Passport local + JWT strategies (includes JWT revocation via `tokenInvalidBefore`)
-- `src/models/models.js` — Mongoose schemas for `User` and `Movie`
-- `tools/data/` — fixture files (`movies.js`, `movies2.js`, etc.)
-- `tools/scripts/` — developer utilities for data migration, enrichment, and import:
-  - `import_movies.js` — import movies from fixture files into MongoDB
-  - `fetch_tmdb_posters.js` — fetch poster URLs from TMDb API
-  - `fetch_imdb_ratings.js` — fetch IMDb ratings via OMDb API or scraping
-  - `merge_posters.js` — merge poster URLs into fixture files
-  - Other scripts: `users-cleanup.js`, `migrate-favorites.js`, `update-image-url.js`
+```
+.env                        # Environment variables (DB_URI, JWT_SECRET, ADMIN_USERNAME, LOCAL_PORT, ALLOWED_ORIGINS)
+
+src/
+├── index.js                 # Main Express server, middleware setup, env validation, CORS config
+├── config/
+│   └── passport.js          # Passport strategies (LocalStrategy, JWTStrategy) with token revocation
+├── controllers/
+│   ├── movieController.js   # 6 handlers: getMoviesList, getAllMovies, getMovieByTitle, getGenreByName, getDirectorByName, getMovieStarring
+│   └── userController.js    # 6 handlers: getUsers, registerUser, updateUser, deleteUser, addFavorite, removeFavorite
+├── middleware/
+│   ├── auth.js              # JWT authentication & role-based authorization (authenticateJWT, requireAdmin, requireOwnerOrAdmin)
+│   ├── validators.js        # Input validation rules using express-validator
+│   ├── errorHandler.js      # Centralized error handling middleware
+│   └── sanitize.js          # Response sanitization (removes sensitive fields like passwords)
+├── models/
+│   └── models.js            # Mongoose schemas for User and Movie with static methods
+├── routes/
+│   ├── auth.js              # POST /login (JWT generation)
+│   ├── movies.js            # 6 GET endpoints for movie data
+│   └── users.js             # 6 endpoints: POST (register), PATCH (update, add/remove favorites), DELETE (deregister), GET (admin-only)
+└── utils/
+    ├── dbHelper.js          # Database query helpers (findMovieByTitle, findGenreByName, etc.)
+    └── responseHelper.js    # Response sanitization utility
+
+public/
+├── index.html               # Landing page
+├── API_documentation.html   # User-facing API documentation with examples
+├── css/
+│   └── style.css           # Dark theme styles
+└── img/
+    └── favicon-32x32.png   # Site favicon
+
+out/                         # JSDoc-generated developer documentation (run `jsdoc src -r`)
+
+tools/
+├── data/                    # Fixture files for movies and users
+│   ├── movies.js
+│   ├── movies2.js
+│   └── users.json
+└── scripts/                 # Developer utilities
+    ├── import_movies.js     # Import movies into MongoDB
+    ├── fetch_tmdb_posters.js
+    ├── fetch_imdb_ratings.js
+    ├── merge_posters.js
+    └── user/favorite maintenance scripts
+
+package.json                 # Dependencies and build scripts
+README.md                    # This file
+postman-collection.json      # Postman collection for API testing
+```
 
 ## Postman examples
 
@@ -108,22 +158,42 @@ Example requests included:
 Import `postman_collection.json` into Postman. The collection uses a variable `baseUrl` (defaults to `http://localhost:8080`) and a `token` variable that you can set from the login response.
 
 ## Notes & caveats
-- CORS is currently enabled for all origins in `index.js` (development convenience). Harden this for production.
-- Movie title validation in some routes uses a conservative alphanumeric check — titles with punctuation may require relaxed validation.
-- Sample user/password pairs are present in `files/users.json` for test/dev purposes; do not use them in production.
+- **CORS configuration:** CORS origins are controlled via the `ALLOWED_ORIGINS` env variable (comma-separated). Set this to your frontend URL(s) in production.
+- **Response sanitization:** Sensitive user fields (password, tokenInvalidBefore) are automatically removed from API responses on user routes via the `sanitizeResponseMiddleware`.
+- **Input validation:** All user inputs are validated using `express-validator` (username, email, birth_date must be in the future, passwords, etc.).
+- **Error handling:** Centralized error handler in `middleware/errorHandler.js` processes all errors and returns consistent error messages.
+- **Birth date validation:** Users cannot register with a birth date in the future; registration/update requests with future dates are rejected with a validation error.
+- **Movie title validation in some routes:** Titles with special punctuation may require additional testing or validation adjustments.
+- **Sample data:** Fixture files in `tools/data/` are for development/testing; do not use in production without review.
 
-## Token revocation and profile updates
+## Architecture highlights
 
+**MVC pattern:** Controllers handle request/response logic, models define schemas, routes define endpoints.
+
+**Middleware composition:** 
+- Authentication (`passport` + custom JWT strategy with token revocation)
+- Input validation (`express-validator` with custom rules)
+- Response sanitization (removes sensitive fields)
+- Error handling (centralized, consistent error messages)
+
+**Database helpers:** Reusable query functions in `src/utils/dbHelper.js` (e.g., `findMovieByTitle`, `findGenreByName`) reduce code duplication in controllers.
+
+**Token revocation and profile updates:**
 - Tokens are standard JWTs signed with `JWT_SECRET` and contain `iat` and `exp` claims (expires in 3 hours).
-- When a user changes sensitive data (username or password) the server now revokes all previously issued tokens for that user by recording a `tokenInvalidBefore` timestamp in the user record.
+- When a user changes sensitive data (username or password), the server revokes all previously issued tokens for that user by recording a `tokenInvalidBefore` timestamp in the user record.
 - Behavior for clients:
-	- `PATCH /users/:username` will NOT return a new token when username or password are changed. The client must re-login via `POST /login` to receive a fresh token.
-	- Non-sensitive updates (email, birth date, favorites) do not revoke tokens and behave as before.
+  - `PATCH /users/:username` will NOT return a new token when username or password are changed. The client must re-login via `POST /login` to receive a fresh token.
+  - Non-sensitive updates (email, birth date, favorites) do not revoke tokens and behave as before.
+- Implementation: A `tokenInvalidBefore` field (Date) in the User schema stores the revocation timestamp. Passport's JWT strategy checks token `iat` against this value and rejects tokens issued earlier than the revocation time. This approach is simple, persistent across server restarts, and does not require extra infrastructure like Redis.
 
-Implementation notes for maintainers:
-- A new field `tokenInvalidBefore` (Date) was added to the `User` schema (`src/models/models.js`). Default is epoch (no invalidation).
-- Passport's JWT strategy checks token `iat` against `user.tokenInvalidBefore` and rejects tokens issued earlier than that timestamp.
-- This approach is simple, persistent across server restarts, and does not require extra infrastructure like Redis.
+**Documentation:** 
+- `public/API_documentation.html` — user-facing API endpoint guide with examples
+- JSDoc comments throughout source code for developer reference (generates via `jsdoc src -r`)
+
+## Testing & deployment
+- Test the API using Postman (collection included: `postman-collection.json`)
+- Deploy to Heroku by pushing to the Heroku Git remote (ensure `Procfile` is committed)
+- Heroku will use the `PORT` env var instead of `LOCAL_PORT`
 
 ## Scripts / tools
 
