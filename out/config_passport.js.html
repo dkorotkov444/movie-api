@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: config/passport.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: config/passport.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file src/config/passport.js
+ * @fileoverview Passport library configuration for authentication
+ * @module config/passport
+ * @requires dotenv
+ * @requires passport
+ * @requires passport-local
+ * @requires passport-jwt
+ * @requires models/models
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
+
+// --- IMPORTS ---
+// --- Third-Party Frameworks &amp; Utilities ---
+import dotenv from 'dotenv';        // Import dotenv to manage environment variables
+import passport from 'passport';    // Import passport authentication module
+import { Strategy as LocalStrategy } from 'passport-local';         // Import local strategy for username/password authentication
+import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt'; // Import JWT strategy for token authentication
+// --- Local Modules (Must be imported/executed) ---
+import { User } from '../models/models.js'; // Import User model
+
+// --- ENVIRONMENT CONFIGURATION ---
+dotenv.config();    // Load environment variables from .env file for JWT secret
+const { JWT_SECRET } = process.env; // Destructure environment variables
+
+// --- MODULE CONSTANTS ---
+const jwtSecret = JWT_SECRET; // Secret key for JWT signing and verification from JWTStrategy in passport.js. NO HARDCODED SECRETS!
+
+/**
+ * Configure the local strategy for username and password authentication
+ */
+passport.use(new LocalStrategy(
+    {
+        usernameField: 'username',  // Field name for username in the request body
+        passwordField: 'password'   // Field name for password in the request body
+    },
+    async (username, password, done) => {
+        try {
+            // Find user by username
+            const user = await User.findOne({ username });
+            if (!user) {
+                return done(null, false, { message: 'Incorrect username.' });
+            }
+            // Validate password
+            const isValid = await user.validatePassword(password);
+            if (!isValid) {
+                return done(null, false, { message: 'Incorrect password.' });
+            }
+            // Authentication successful
+            return done(null, user);
+        } catch (error) {
+            return done(error);
+        }
+    }
+));
+
+/**
+ * Configure the JWT strategy for token authentication
+ */
+passport.use(new JWTStrategy(
+    {
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+        secretOrKey: jwtSecret // Secret key for verifying JWTs from .env file. NO HARDCODED SECRETS!
+    },
+    async (jwtPayload, done) => {
+        try {
+            // Find user by ID from JWT payload
+            const user = await User.findById(jwtPayload._id);
+            if (!user) {
+                return done(null, false, { message: 'Unauthorized' });
+            }
+
+            // Reject tokens issued before the user's tokenInvalidBefore timestamp
+            // jwtPayload.iat is seconds since epoch; convert to ms for comparison with Date
+            if (user.tokenInvalidBefore) {
+                const tokenIatMs = (jwtPayload.iat || 0) * 1000;
+                const invalidBeforeMs = user.tokenInvalidBefore.getTime();
+                if (tokenIatMs &lt;= invalidBeforeMs) {
+                    return done(null, false, { message: 'Token revoked' });
+                }
+            }
+
+            // Authentication successful
+            return done(null, user);
+        } catch (error) {
+            return done(error);
+        }
+    }
+));
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config_passport.html">config/passport</a></li><li><a href="module-controllers_movieController.html">controllers/movieController</a></li><li><a href="module-controllers_userController.html">controllers/userController</a></li><li><a href="module-index.html">index</a></li><li><a href="module-middleware_auth.html">middleware/auth</a></li><li><a href="module-middleware_errorHandler.html">middleware/errorHandler</a></li><li><a href="module-middleware_sanitize.html">middleware/sanitize</a></li><li><a href="module-middleware_validators.html">middleware/validators</a></li><li><a href="module-models_models.html">models/models</a></li><li><a href="module-routes_auth.html">routes/auth</a></li><li><a href="module-routes_movies.html">routes/movies</a></li><li><a href="module-routes_users.html">routes/users</a></li><li><a href="module-utils_dbHelper.html">utils/dbHelper</a></li><li><a href="module-utils_responseHelper.html">utils/responseHelper</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Dec 09 2025 11:28:29 GMT+0100 (Central European Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

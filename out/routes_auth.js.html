@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routes/auth.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routes/auth.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file src/routes/auth.js
+ * @fileoverview User authentication routes for the REEL movie API
+ * @module routes/auth
+ * @requires dotenv
+ * @requires express
+ * @requires jsonwebtoken
+ * @requires passport
+ * @requires config/passport
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
+
+// --- IMPORTS ---
+// --- Third-Party Frameworks &amp; Utilities ---
+import dotenv from 'dotenv';        // Import dotenv to manage environment variables
+import { Router } from 'express';   // Import Router from express to create route handlers
+import jwt from 'jsonwebtoken';     // Import jsonwebtoken for creating and verifying JWTs
+import passport from 'passport';    // Import passport authentication module
+// --- Local Modules (Must be imported/executed) ---
+import '../config/passport.js';             // Import passport strategies (runs passport.js)
+
+// --- ENVIRONMENT CONFIGURATION ---
+dotenv.config();    // Load environment variables from .env file for JWT secret
+const { JWT_SECRET } = process.env; // Destructure environment variables
+
+// --- MODULE CONSTANTS ---
+const authRouter = Router();  // Create a new router instance
+const jwtSecret = JWT_SECRET; // Secret key for JWT signing and verification from JWTStrategy in passport.js. NO HARDCODED SECRETS!
+
+/**
+ * Function to generate a JWT for a user
+ * @param {Object} user - User object
+ * @returns {string} JWT token
+ */
+const generateJWT = (user) => {
+    return jwt.sign({ _id: user._id, username: user.username }, // Payload with only user ID and username is more secure
+        jwtSecret,              // Secret key for JWT signing
+        { 
+                subject: user.username,     // Subject set to username
+                expiresIn: '3h',            // Token expires in 3 hours
+                algorithm: 'HS256'          // Algorithm used for signing the token
+        });   
+};
+
+// Export the token generator so other modules (e.g., update handlers) can issue fresh tokens
+export { generateJWT };
+
+/**
+ * POST /login
+ * Authenticates user credentials and returns JWT + public profile
+ */
+authRouter.post('/login', async (req, res) => {
+    passport.authenticate('local', { session: false }, (err, user, info) => {
+        if (err || !user) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        // Generate JWT for the authenticated user
+        const token = generateJWT(user);
+
+    // Convert the Mongoose document to a plain object and use destructuring to exclude sensitive fields
+    const { password: _, tokenInvalidBefore: __, ...publicProfile } = user.toObject();
+
+        // Return the full user profile (excluding password) and the JWT token
+        return res.json({ user: publicProfile, token });
+
+    })(req, res);
+});
+
+export default authRouter; // Export the router to be used in index.js
+
+// Note: The login route uses the local strategy defined in passport.js to authenticate users based on username and password. 
+// If authentication is successful, a JWT is generated and returned to the client.</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config_passport.html">config/passport</a></li><li><a href="module-controllers_movieController.html">controllers/movieController</a></li><li><a href="module-controllers_userController.html">controllers/userController</a></li><li><a href="module-index.html">index</a></li><li><a href="module-middleware_auth.html">middleware/auth</a></li><li><a href="module-middleware_errorHandler.html">middleware/errorHandler</a></li><li><a href="module-middleware_sanitize.html">middleware/sanitize</a></li><li><a href="module-middleware_validators.html">middleware/validators</a></li><li><a href="module-models_models.html">models/models</a></li><li><a href="module-routes_auth.html">routes/auth</a></li><li><a href="module-routes_movies.html">routes/movies</a></li><li><a href="module-routes_users.html">routes/users</a></li><li><a href="module-utils_dbHelper.html">utils/dbHelper</a></li><li><a href="module-utils_responseHelper.html">utils/responseHelper</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Dec 09 2025 11:28:29 GMT+0100 (Central European Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

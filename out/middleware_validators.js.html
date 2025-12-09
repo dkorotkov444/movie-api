@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: middleware/validators.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: middleware/validators.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file src/middleware/validators.js
+ * @fileoverview Input validation rules for the REEL movie API
+ * @module middleware/validators
+ * @requires express-validator
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
+
+// --- Third-Party Frameworks &amp; Utilities ---
+import { check, param } from 'express-validator';
+
+/**
+ * Validation rules for user registration
+ * @type {Array}
+ */
+export const registerValidation = [
+  check('username')
+    .isString().withMessage('Username must be a string')
+    .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
+    .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
+  check('password')
+    .not()
+    .isEmpty()
+    .withMessage('Password is required')
+    .isString()
+    .withMessage('Password must be a string')
+    .custom((value) => {
+      if (typeof value !== 'string') return false;
+      if (value.includes(' ')) throw new Error('Password must not contain spaces');
+      return true;
+    })
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
+  check('email').isEmail().withMessage('Invalid email format'),
+  check('birth_date')
+    .optional({ values: 'falsy' })
+    .isDate().withMessage('Invalid date format')
+    .custom((value) => {
+      if (value &amp;&amp; new Date(value) > new Date()) {
+        throw new Error('Birth date cannot be in the future');
+      }
+      return true;
+    }),
+];
+
+/**
+ * Validation rules for user update
+ * @type {Array}
+ */
+export const updateUserValidation = [
+  check('newUsername')
+    .optional()
+    .isString().withMessage('Username must be a string')
+    .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
+    .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
+  check('newPassword')
+    .optional()
+    .isString().withMessage('Password must be a string')
+    .custom((value) => {
+      if (typeof value !== 'string') return false;
+      if (value.includes(' ')) throw new Error('Password must not contain spaces');
+      return true;
+    })
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
+  check('newEmail').optional().isEmail().withMessage('Invalid email format'),
+  check('newBirthDate')
+    .optional()
+    .isDate().withMessage('Invalid date format')
+    .custom((value) => {
+      if (value &amp;&amp; new Date(value) > new Date()) {
+        throw new Error('Birth date cannot be in the future');
+      }
+      return true;
+    }),
+  param('username')
+    .isString().withMessage('Username must be a string')
+    .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
+    .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
+];
+
+/**
+ * Validation rules for user deletion
+ * @type {Array}
+ */
+export const deleteUserValidation = [
+  param('username')
+    .isString().withMessage('Username must be a string')
+    .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
+    .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
+];
+
+/**
+ * Validation rules for favorite operations
+ * @type {Array}
+ */
+export const favoriteValidation = [
+  param('username')
+    .isString().withMessage('Username must be a string')
+    .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')
+    .isAlphanumeric().withMessage('Username must contain only letters and numbers'),
+  param('movieId').isMongoId().withMessage('Movie ID must be a valid MongoDB ObjectID'),
+];
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config_passport.html">config/passport</a></li><li><a href="module-controllers_movieController.html">controllers/movieController</a></li><li><a href="module-controllers_userController.html">controllers/userController</a></li><li><a href="module-index.html">index</a></li><li><a href="module-middleware_auth.html">middleware/auth</a></li><li><a href="module-middleware_errorHandler.html">middleware/errorHandler</a></li><li><a href="module-middleware_sanitize.html">middleware/sanitize</a></li><li><a href="module-middleware_validators.html">middleware/validators</a></li><li><a href="module-models_models.html">models/models</a></li><li><a href="module-routes_auth.html">routes/auth</a></li><li><a href="module-routes_movies.html">routes/movies</a></li><li><a href="module-routes_users.html">routes/users</a></li><li><a href="module-utils_dbHelper.html">utils/dbHelper</a></li><li><a href="module-utils_responseHelper.html">utils/responseHelper</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Dec 09 2025 11:28:29 GMT+0100 (Central European Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
