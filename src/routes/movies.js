@@ -19,24 +19,46 @@ const router = Router();
 
 // ESSENTIAL FEATURES
 
-// 1. Returns the list of all movies (titles only)
+/**
+ * GET /movies/list
+ * Returns the list of all movies (titles only)
+ */
 router.get('/movies/list', authenticateJWT, movieController.getMoviesList);
 
-// 2. Returns complete information about all movies
+/**
+ * GET /movies
+ * Returns complete information about all movies
+ */
 router.get('/movies', authenticateJWT, movieController.getAllMovies);
 
-// 3. Returns data (description, genre, director, image URL, etc.) about a single movie by title
+/**
+ * GET /movies/:title
+ * Returns data (description, genre, director, image URL, etc.) about a single movie by title
+ * @param {string} title - Movie title
+ */
 router.get('/movies/:title', authenticateJWT, movieController.getMovieByTitle);
 
-// 4. Returns data about a genre (description) by name (e.g., "Thriller")
+/**
+ * GET /movies/genres/:genreName
+ * Returns data about a genre (description) by name (e.g., "Thriller")
+ * @param {string} genreName - Genre name
+ */
 router.get('/movies/genres/:genreName', authenticateJWT, movieController.getGenreByName);
 
-// 5. Returns data about a director (name, bio, birth year, death year) by name
+/**
+ * GET /movies/directors/:directorName
+ * Returns data about a director (name, bio, birth year, death year) by name
+ * @param {string} directorName - Director name
+ */
 router.get('/movies/directors/:directorName', authenticateJWT, movieController.getDirectorByName);
 
 // OPTIONAL FEATURES
 
-// 6. Returns the list of actors starring in the movie
+/**
+ * GET /movies/:title/starring
+ * Returns the list of actors starring in the movie
+ * @param {string} title - Movie title
+ */
 router.get('/movies/:title/starring', authenticateJWT, movieController.getMovieStarring);
 
 export default router;

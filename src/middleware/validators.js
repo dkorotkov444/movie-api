@@ -32,7 +32,15 @@ export const registerValidation = [
     })
     .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
   check('email').isEmail().withMessage('Invalid email format'),
-  check('birth_date').optional({ values: 'falsy' }).isDate().withMessage('Invalid date format'),
+  check('birth_date')
+    .optional({ values: 'falsy' })
+    .isDate().withMessage('Invalid date format')
+    .custom((value) => {
+      if (value && new Date(value) > new Date()) {
+        throw new Error('Birth date cannot be in the future');
+      }
+      return true;
+    }),
 ];
 
 /**
@@ -55,7 +63,15 @@ export const updateUserValidation = [
     })
     .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
   check('newEmail').optional().isEmail().withMessage('Invalid email format'),
-  check('newBirthDate').optional().isDate().withMessage('Invalid date format'),
+  check('newBirthDate')
+    .optional()
+    .isDate().withMessage('Invalid date format')
+    .custom((value) => {
+      if (value && new Date(value) > new Date()) {
+        throw new Error('Birth date cannot be in the future');
+      }
+      return true;
+    }),
   param('username')
     .isString().withMessage('Username must be a string')
     .isLength({ min: 5 }).withMessage('Username must be at least 5 characters long')

@@ -15,7 +15,13 @@ import { User, Movie } from '../models/models.js';
 
 // ESSENTIAL FEATURES
 
-// 1. Returns a list of all users
+/**
+ * Returns a list of all users (admin only)
+ * @async
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const getUsers = async (req, res) => {
   try {
     const users = await User.find();
@@ -25,7 +31,17 @@ export const getUsers = async (req, res) => {
   }
 };
 
-// 2. Registers new user
+/**
+ * Registers new user
+ * @async
+ * @param {Object} req - Express request object
+ * @param {string} req.body.username - Username (5+ chars, alphanumeric)
+ * @param {string} req.body.password - Password (8+ chars, no spaces)
+ * @param {string} req.body.email - Email address
+ * @param {string} [req.body.birth_date] - Optional birth date
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const registerUser = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -64,7 +80,18 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// 3. Updates existing user info (username, password, email, date of birth)
+/**
+ * Updates existing user info (username, password, email, date of birth)
+ * @async
+ * @param {Object} req - Express request object
+ * @param {string} req.params.username - Current username
+ * @param {string} [req.body.newUsername] - New username (optional)
+ * @param {string} [req.body.newPassword] - New password (optional)
+ * @param {string} [req.body.newEmail] - New email (optional)
+ * @param {string} [req.body.newBirthDate] - New birth date (optional)
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const updateUser = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -133,7 +160,14 @@ export const updateUser = async (req, res) => {
   }
 };
 
-// 4. Deregisters (deletes) user with provided username
+/**
+ * Deregisters (deletes) user with provided username
+ * @async
+ * @param {Object} req - Express request object
+ * @param {string} req.params.username - Username to delete
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const deleteUser = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -156,7 +190,15 @@ export const deleteUser = async (req, res) => {
 
 // OPTIONAL FEATURES
 
-// 5. Adds a movie to a user's favorites by username and movie ID
+/**
+ * Adds a movie to a user's favorites by username and movie ID
+ * @async
+ * @param {Object} req - Express request object
+ * @param {string} req.params.username - Username
+ * @param {string} req.params.movieId - Movie ID
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const addFavorite = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -189,7 +231,15 @@ export const addFavorite = async (req, res) => {
   }
 };
 
-// 6. Removes a movie from user's favorites by username and movie ID
+/**
+ * Removes a movie from user's favorites by username and movie ID
+ * @async
+ * @param {Object} req - Express request object
+ * @param {string} req.params.username - Username
+ * @param {string} req.params.movieId - Movie ID
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const removeFavorite = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

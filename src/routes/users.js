@@ -29,13 +29,23 @@ const router = Router();
 
 // ESSENTIAL FEATURES
 
-// 1. Returns a list of all users
+/**
+ * GET /users
+ * Returns a list of all users (admin only)
+ */
 router.get('/users', authenticateJWT, requireAdmin, userController.getUsers);
 
-// 2. Registers new user
+/**
+ * POST /users
+ * Registers new user
+ */
 router.post('/users', registerValidation, userController.registerUser);
 
-// 3. Updates existing user info (username, password, email, date of birth)
+/**
+ * PATCH /users/:username
+ * Updates existing user info (username, password, email, date of birth)
+ * @param {string} username - Current username
+ */
 router.patch(
   '/users/:username',
   updateUserValidation,
@@ -44,7 +54,11 @@ router.patch(
   userController.updateUser
 );
 
-// 4. Deregisters (deletes) user with provided username
+/**
+ * DELETE /users/:username
+ * Deregisters (deletes) user with provided username
+ * @param {string} username - Username to delete
+ */
 router.delete(
   '/users/:username',
   deleteUserValidation,
@@ -55,7 +69,12 @@ router.delete(
 
 // OPTIONAL FEATURES
 
-// 5. Adds a movie to a user's favorites by username and movie ID
+/**
+ * PATCH /users/:username/:movieId
+ * Adds a movie to a user's favorites by username and movie ID
+ * @param {string} username - Username
+ * @param {string} movieId - Movie ID
+ */
 router.patch(
   '/users/:username/:movieId',
   favoriteValidation,
@@ -64,7 +83,12 @@ router.patch(
   userController.addFavorite
 );
 
-// 6. Removes a movie from user's favorites by username and movie ID
+/**
+ * DELETE /users/:username/:movieId
+ * Removes a movie from user's favorites by username and movie ID
+ * @param {string} username - Username
+ * @param {string} movieId - Movie ID
+ */
 router.delete(
   '/users/:username/:movieId',
   favoriteValidation,

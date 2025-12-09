@@ -12,7 +12,6 @@
  */
 
 // --- IMPORTS ---
-// --- Core Node.js Modules ---
 // --- Third-Party Frameworks & Utilities ---
 import dotenv from 'dotenv';        // Import dotenv to manage environment variables
 import { Router } from 'express';   // Import Router from express to create route handlers
@@ -47,8 +46,10 @@ const generateJWT = (user) => {
 // Export the token generator so other modules (e.g., update handlers) can issue fresh tokens
 export { generateJWT };
 
-// POST /login route handler
-
+/**
+ * POST /login
+ * Authenticates user credentials and returns JWT + public profile
+ */
 authRouter.post('/login', async (req, res) => {
     passport.authenticate('local', { session: false }, (err, user, info) => {
         if (err || !user) {

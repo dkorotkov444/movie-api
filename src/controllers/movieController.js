@@ -16,7 +16,13 @@ import { toPublicProfile } from '../utils/responseHelper.js';
 
 // ESSENTIAL FEATURES
 
-// 1. Returns the list of all movies (titles only)
+/**
+ * Returns the list of all movies (titles only)
+ * @async
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const getMoviesList = async (req, res) => {
   try {
     const movies = await Movie.find();
@@ -26,7 +32,13 @@ export const getMoviesList = async (req, res) => {
   }
 };
 
-// 2. Returns complete information about all movies
+/**
+ * Returns complete information about all movies
+ * @async
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const getAllMovies = async (req, res) => {
   try {
     const movies = await Movie.find();
@@ -36,7 +48,14 @@ export const getAllMovies = async (req, res) => {
   }
 };
 
-// 3. Returns data (description, genre, director, image URL, etc.) about a single movie by title
+/**
+ * Returns data (description, genre, director, image URL, etc.) about a single movie by title
+ * @async
+ * @param {Object} req - Express request object
+ * @param {string} req.params.title - Movie title
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const getMovieByTitle = async (req, res) => {
   const { title } = req.params;
   try {
@@ -51,7 +70,14 @@ export const getMovieByTitle = async (req, res) => {
   }
 };
 
-// 4. Returns data about a genre (description) by name (e.g., "Thriller")
+/**
+ * Returns data about a genre (description) by name (e.g., "Thriller")
+ * @async
+ * @param {Object} req - Express request object
+ * @param {string} req.params.genreName - Genre name
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const getGenreByName = async (req, res) => {
   const { genreName } = req.params;
   try {
@@ -66,7 +92,14 @@ export const getGenreByName = async (req, res) => {
   }
 };
 
-// 5. Returns data about a director (name, bio, birth year, death year) by name
+/**
+ * Returns data about a director (name, bio, birth year, death year) by name
+ * @async
+ * @param {Object} req - Express request object
+ * @param {string} req.params.directorName - Director name
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const getDirectorByName = async (req, res) => {
   const { directorName } = req.params;
   try {
@@ -83,7 +116,14 @@ export const getDirectorByName = async (req, res) => {
 
 // OPTIONAL FEATURES
 
-// 6. Returns the list of actors starring in the movie
+/**
+ * Returns the list of actors starring in the movie
+ * @async
+ * @param {Object} req - Express request object
+ * @param {string} req.params.title - Movie title
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const getMovieStarring = async (req, res) => {
   const { title } = req.params;
   try {

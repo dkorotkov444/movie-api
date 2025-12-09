@@ -12,7 +12,6 @@
  */
 
 // --- IMPORTS ---
-// --- Core Node.js Modules ---
 // --- Third-Party Frameworks & Utilities ---
 import dotenv from 'dotenv';        // Import dotenv to manage environment variables
 import passport from 'passport';    // Import passport authentication module
@@ -28,7 +27,9 @@ const { JWT_SECRET } = process.env; // Destructure environment variables
 // --- MODULE CONSTANTS ---
 const jwtSecret = JWT_SECRET; // Secret key for JWT signing and verification from JWTStrategy in passport.js. NO HARDCODED SECRETS!
 
-// Configure the local strategy for username and password authentication    
+/**
+ * Configure the local strategy for username and password authentication
+ */
 passport.use(new LocalStrategy(
     {
         usernameField: 'username',  // Field name for username in the request body
@@ -54,7 +55,9 @@ passport.use(new LocalStrategy(
     }
 ));
 
-// Configure the JWT strategy for token authentication
+/**
+ * Configure the JWT strategy for token authentication
+ */
 passport.use(new JWTStrategy(
     {
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

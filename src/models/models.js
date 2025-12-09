@@ -1,20 +1,25 @@
-/*  models.js
-* JavaScript file with ODM models for the REEL movie API
-* Uses ESM syntax
-*/
+/**
+ * @file src/models/models.js
+ * @fileoverview ODM models for the REEL movie API
+ * @module models/models
+ * @requires mongoose
+ * @requires bcrypt
+ * @author Dmitri Korotkov
+ * @copyright Dmitri Korotkov 2025
+ */
 
 // --- IMPORTS ---
-// --- Core Node.js Modules ---
 // --- Third-Party Frameworks & Utilities ---
 import mongoose from 'mongoose';    // Import mongoose for MongoDB object modeling
 import bcrypt from 'bcrypt';        // Import bcrypt for password hashing
-// --- Local Modules (Must be imported/executed) ---
-
 
 // --- MODULE CONSTANTS ---
 const { Schema, model } = mongoose;
 
-// Define the user schema
+/**
+ * User schema definition
+ * @type {mongoose.Schema}
+ */
 const userSchema = new Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -26,18 +31,29 @@ const userSchema = new Schema({
     favorites: [{ type: Schema.Types.ObjectId, ref: 'Movie', default: [] }]
 });
 
-// Hash the password before saving a user
+/**
+ * Hash a plaintext password using bcrypt
+ * @param {string} password - Plaintext password
+ * @returns {Promise<string>} Hashed password
+ */
 userSchema.statics.hashPassword = async function(password) {
     const salt = await bcrypt.genSalt(10);
     return bcrypt.hash(password, salt);
 };
 
-// Method to validate password during login
+/**
+ * Validate a plaintext password against the stored hash
+ * @param {string} password - Plaintext password
+ * @returns {Promise<boolean>} Whether the password is valid
+ */
 userSchema.methods.validatePassword = async function(password) {
     return bcrypt.compare(password, this.password);
 };
 
-// Define the movie schema
+/**
+ * Movie schema definition
+ * @type {mongoose.Schema}
+ */
 const movieSchema = new Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
