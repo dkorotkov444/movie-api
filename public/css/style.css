@@ -12,6 +12,10 @@ body {
     color: rgba(255, 255, 255, 0.5) !important;
 }
 
+.text-white {
+    color: #f8f9fa !important;
+}
+
 .btn-primary {
     background-color: #0d6efd;
     border-color: #0d6efd;
@@ -46,6 +50,10 @@ code {
     background-color: #333;
     padding: 0.2em 0.4em;
     border-radius: 0.25rem;
+}
+
+.list-unstyled li strong {
+    color: #adb5bd;
 }
 
 .list-unstyled li strong {
