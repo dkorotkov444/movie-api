@@ -13,7 +13,6 @@
 
 // --- Third-Party Frameworks & Utilities ---
 import { Router } from 'express';
-import { validationResult } from 'express-validator';
 // --- Local Modules (Must be imported/executed) ---
 import * as userController from '../controllers/userController.js';
 import {

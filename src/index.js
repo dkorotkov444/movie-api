@@ -31,7 +31,7 @@ import { handleDuplicateKeyError, handleValidationError, globalErrorHandler } fr
 
 // --- ENVIRONMENT CONFIGURATION ---
 dotenv.config();
-const { ADMIN_USERNAME, DB_URI, LOCAL_PORT } = process.env;
+const { DB_URI, LOCAL_PORT } = process.env;
 
 /**
  * Validate required environment variables at startup
@@ -50,7 +50,7 @@ const myPort = process.env.PORT || LOCAL_PORT || 8080;
 /**
  * Parse allowed CORS origins from environment
  * Format: comma-separated list (ALLOWED_ORIGINS is required)
- * For development, set in .env, e.g. ALLOWED_ORIGINS=http://localhost:3000,http://localhost:1234
+ * For development, set in .env, e.g. ALLOWED_ORIGINS=http://localhost:3000
  */
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   .split(',')
