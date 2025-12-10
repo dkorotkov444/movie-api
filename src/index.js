@@ -50,7 +50,8 @@ const myPort = process.env.PORT || LOCAL_PORT || 8080;
 /**
  * Parse allowed CORS origins from environment
  * Format: comma-separated list (ALLOWED_ORIGINS is required)
- * For development, set in .env, e.g. ALLOWED_ORIGINS=http://localhost:3000
+ * For development, set in .env, e.g. ALLOWED_ORIGINS=http://localhost:3000,http://localhost:1234
+ * "localhost:1234" is an actual port used by reel-client frontend during development
  */
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   .split(',')
