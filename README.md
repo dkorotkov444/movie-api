@@ -56,6 +56,19 @@ LOCAL_PORT=8080
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:1234
 ```
 
+## Local Development & CORS Configuration
+
+The API allows requests from the following origins (configured via `ALLOWED_ORIGINS` in `.env`):
+
+| Origin | Purpose | Technology |
+|--------|---------|-----------|
+| http://localhost:3000 | Frontend development server | React (or similar) |
+| http://localhost:1234 | Bundler dev server | Parcel |
+| http://localhost:4200 | Frontend dev server | Angular |
+| https://reel-movies.netlify.app | Production frontend | Netlify deployment |
+
+When developing locally, ensure your frontend is running on one of these ports or update `ALLOWED_ORIGINS` in `.env` accordingly.
+
 ## Authentication
 
 - Register a new user: `POST /users` (body: `username`, `password`, `email`, optional `birth_date`).
