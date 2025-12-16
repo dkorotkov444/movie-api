@@ -27,7 +27,7 @@ export const getUsers = async (req, res) => {
     const users = await User.find();
     res.status(200).json(users);
   } catch (err) {
-    res.status(500).json({ error: 'Error: ' + err });
+    res.status(500).send('Error: ' + err);
   }
 };
 
@@ -52,13 +52,13 @@ export const registerUser = async (req, res) => {
   const { username, password, email, birth_date } = newUser;
 
   if (!newUser || !username || !password || !email) {
-    return res.status(400).json({ error: 'Missing required fields (username, password, email) in request body' });
+    return res.status(400).send('Missing required fields (username, password, email) in request body');
   }
 
   try {
     const existingUser = await User.findOne({ username: username });
     if (existingUser) {
-      return res.status(409).json({ error: 'Username already exists' });
+      return res.status(409).send('Username already exists');
     }
 
     const hashedPassword = await User.hashPassword(password);
@@ -74,9 +74,9 @@ export const registerUser = async (req, res) => {
     res.status(201).json(publicProfile);
   } catch (err) {
     if (err.code === 11000) {
-      return res.status(409).json({ error: 'Username or email already exists.' });
+      return res.status(409).send('Username or email already exists.');
     }
-    res.status(500).json({ error: 'Error: ' + err.message });
+    res.status(500).send('Error: ' + err.message);
   }
 };
 
@@ -107,14 +107,14 @@ export const updateUser = async (req, res) => {
     if (newUsername !== undefined && newUsername !== currentUser.username) {
       const existingUser = await User.findOne({ username: newUsername });
       if (existingUser && existingUser._id.toString() !== currentUser._id.toString()) {
-        return res.status(409).json({ error: 'Username already exists' });
+        return res.status(409).send('Username already exists');
       }
     }
 
     if (newEmail !== undefined && newEmail !== currentUser.email) {
       const existingEmailUser = await User.findOne({ email: newEmail });
       if (existingEmailUser && existingEmailUser._id.toString() !== currentUser._id.toString()) {
-        return res.status(409).json({ error: 'Email already exists' });
+        return res.status(409).send('Email already exists');
       }
     }
 
@@ -128,7 +128,7 @@ export const updateUser = async (req, res) => {
     if (newBirthDate !== undefined) updateFields.birth_date = newBirthDate;
 
     if (Object.keys(updateFields).length === 0) {
-      return res.status(400).json({ error: 'No fields provided for update.' });
+      return res.status(400).send('No fields provided for update.');
     }
 
     const shouldRevoke = newUsername !== undefined || newPassword !== undefined;
@@ -139,7 +139,7 @@ export const updateUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(currentUser._id, updateDoc, { new: true });
 
     if (!updatedUser) {
-      return res.status(404).json({ error: `User ${username} not found` });
+      return res.status(404).send(`User ${username} not found`);
     }
 
     const { password: _, tokenInvalidBefore: __, ...publicProfile } = updatedUser.toObject();
@@ -148,15 +148,15 @@ export const updateUser = async (req, res) => {
     if (err && err.code === 11000) {
       const duplicateKey = err.keyValue ? Object.keys(err.keyValue)[0] : null;
       if (duplicateKey === 'username') {
-        return res.status(409).json({ error: 'Username already exists. Please choose a different username.' });
+        return res.status(409).send('Error: Username already exists. Please choose a different username.');
       }
       if (duplicateKey === 'email') {
-        return res.status(409).json({ error: 'Email already exists. Please use a different email address.' });
+        return res.status(409).send('Error: Email already exists. Please use a different email address.');
       }
-      return res.status(409).json({ error: 'Duplicate key error.' });
+      return res.status(409).send('Error: Duplicate key error.');
     }
 
-    res.status(500).json({ error: 'Error: ' + err.message });
+    res.status(500).send('Error: ' + err.message);
   }
 };
 
@@ -179,12 +179,12 @@ export const deleteUser = async (req, res) => {
   try {
     const user = await User.findOneAndDelete({ username: username });
     if (user) {
-      res.status(200).json({ message: `User ${username} was deregistered` });
+      res.status(200).send(`User ${username} was deregistered`);
     } else {
-      res.status(404).json({ error: `User ${username} not found` });
+      res.status(404).send(`User ${username} not found`);
     }
   } catch (err) {
-    res.status(500).json({ error: 'Error: ' + err.message });
+    res.status(500).send('Error: ' + err);
   }
 };
 
@@ -210,7 +210,7 @@ export const addFavorite = async (req, res) => {
   try {
     const movie = await Movie.findById(movieId);
     if (!movie) {
-      return res.status(404).json({ error: `Movie with ID ${movieId} not found.` });
+      return res.status(404).send(`Movie with ID ${movieId} not found.`);
     }
 
     const updatedUser = await User.findOneAndUpdate(
@@ -220,14 +220,14 @@ export const addFavorite = async (req, res) => {
     );
 
     if (!updatedUser) {
-      return res.status(404).json({ error: `User ${username} not found.` });
+      return res.status(404).send(`User ${username} not found.`);
     }
 
     const { password: _, tokenInvalidBefore: __, ...publicProfile } = updatedUser.toObject();
     res.status(200).json(publicProfile);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Error: ' + err.message });
+    res.status(500).send('Error: ' + err.message);
   }
 };
 
@@ -251,7 +251,7 @@ export const removeFavorite = async (req, res) => {
   try {
     const movie = await Movie.findById(movieId).select('_id');
     if (!movie) {
-      return res.status(404).json({ error: `Movie with ID ${movieId} not found.` });
+      return res.status(404).send(`Movie with ID ${movieId} not found.`);
     }
 
     const updatedUser = await User.findOneAndUpdate(
@@ -261,13 +261,13 @@ export const removeFavorite = async (req, res) => {
     );
 
     if (!updatedUser) {
-      return res.status(404).json({ error: `User ${username} not found.` });
+      return res.status(404).send(`User ${username} not found.`);
     }
 
     const { password: _, tokenInvalidBefore: __, ...publicProfile } = updatedUser.toObject();
     res.status(200).json(publicProfile);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Error: ' + err.message });
+    res.status(500).send('Error: ' + err.message);
   }
 };

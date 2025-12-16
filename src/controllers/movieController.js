@@ -28,7 +28,7 @@ export const getMoviesList = async (req, res) => {
     const movies = await Movie.find();
     res.status(200).json(movies.map((movie) => movie.title));
   } catch (err) {
-    res.status(500).json({ error: 'Error: ' + err });
+    res.status(500).send('Error: ' + err);
   }
 };
 
@@ -44,7 +44,7 @@ export const getAllMovies = async (req, res) => {
     const movies = await Movie.find();
     res.status(200).json(movies.map((movie) => toPublicProfile(movie)));
   } catch (err) {
-    res.status(500).json({ error: 'Error: ' + err });
+    res.status(500).send('Error: ' + err);
   }
 };
 
@@ -63,10 +63,10 @@ export const getMovieByTitle = async (req, res) => {
     if (movie) {
       res.status(200).json(toPublicProfile(movie));
     } else {
-      res.status(400).json({ error: `Movie ${title} not found` });
+      res.status(400).send(`Movie ${title} not found`);
     }
   } catch (err) {
-    res.status(500).json({ error: 'Error: ' + err });
+    res.status(500).send('Error: ' + err);
   }
 };
 
@@ -85,10 +85,10 @@ export const getGenreByName = async (req, res) => {
     if (genre) {
       res.status(200).json(genre);
     } else {
-      res.status(400).json({ error: `Genre ${genreName} not found` });
+      res.status(400).send(`Genre ${genreName} not found`);
     }
   } catch (err) {
-    res.status(500).json({ error: 'Error: ' + err });
+    res.status(500).send('Error: ' + err);
   }
 };
 
@@ -107,10 +107,10 @@ export const getDirectorByName = async (req, res) => {
     if (director) {
       res.status(200).json(director);
     } else {
-      res.status(400).json({ error: `Director ${directorName} not found` });
+      res.status(400).send(`Director ${directorName} not found`);
     }
   } catch (err) {
-    res.status(500).json({ error: 'Error: ' + err });
+    res.status(500).send('Error: ' + err);
   }
 };
 
@@ -131,9 +131,9 @@ export const getMovieStarring = async (req, res) => {
     if (starring) {
       res.status(200).json(starring);
     } else {
-      res.status(400).json({ error: `Movie ${title} not found` });
+      res.status(400).send(`Movie ${title} not found`);
     }
   } catch (err) {
-    res.status(500).json({ error: 'Error: ' + err });
+    res.status(500).send('Error: ' + err);
   }
 };
