@@ -102,9 +102,11 @@ Invoke-RestMethod -Method Get -Uri http://localhost:8080/movies -Headers @{ Auth
 - `PATCH /users/:username/:movieTitle` — add movie to favorites (protected)
 - `DELETE /users/:username/:movieTitle` — remove movie from favorites (protected)
 
+
 Notes:
 - Most API routes enforce JWT authentication via Passport. `POST /users` and `POST /login` are public.
 - `GET /users` is restricted to the `ADMIN_USERNAME` configured in env.
+- **Future Improvement:** Consider updating all API endpoint responses in the controllers to consistently return JSON format.
 
 ## Project structure (high level)
 
