@@ -255,15 +255,15 @@ All movie endpoints require JWT authentication.
 
 ## Favorites Management
 
-### **`PATCH /users/:username/:movieTitle`**
+### **`PATCH /users/:username/:movieId`**
 
 * **Description:** Adds a movie to a user's list of favorite movies. User can only modify their own favorites unless they are admin.
 * **Method Type:** PATCH
-* **Endpoint URL:** `{baseUrl}/users/:username/:movieTitle`
+* **Endpoint URL:** `{baseUrl}/users/:username/:movieId`
 * **Authentication:** Required
 * **Path Parameters:**
     * `username`: The username of the account.
-    * `movieTitle`: The title of the movie to add.
+    * `movieId`: The MongoDB ID of the movie to add.
 * **Data returned:** The updated user object with the new movie added to the `favorites` array.
 * **Status codes:**
     * **200 OK** — Movie added to favorites
@@ -273,15 +273,15 @@ All movie endpoints require JWT authentication.
 
 ***
 
-### **`DELETE /users/:username/:movieTitle`**
+### **`DELETE /users/:username/:movieId`**
 
 * **Description:** Removes a movie from a user's list of favorite movies. User can only modify their own favorites unless they are admin.
 * **Method Type:** DELETE
-* **Endpoint URL:** `{baseUrl}/users/:username/:movieTitle`
+* **Endpoint URL:** `{baseUrl}/users/:username/:movieId`
 * **Authentication:** Required
 * **Path Parameters:**
     * `username`: The username of the account.
-    * `movieTitle`: The title of the movie to remove.
+    * `movieId`: The MongoDB ID tle of the movie to remove.
 * **Data returned:** The updated user object with the movie removed from the `favorites` array.
 * **Status codes:**
     * **200 OK** — Movie removed from favorites

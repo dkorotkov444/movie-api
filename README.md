@@ -99,8 +99,8 @@ Invoke-RestMethod -Method Get -Uri http://localhost:8080/movies -Headers @{ Auth
 - `POST /users` — register new user
 - `PATCH /users/:username` — update user (protected, user may only edit own profile)
 - `DELETE /users/:username` — delete user (protected, user may only delete own profile)
-- `PATCH /users/:username/:movieTitle` — add movie to favorites (protected)
-- `DELETE /users/:username/:movieTitle` — remove movie from favorites (protected)
+- `PATCH /users/:username/:movieId` — add movie to favorites (protected)
+- `DELETE /users/:username/:movieId` — remove movie from favorites (protected)
 
 
 Notes:
